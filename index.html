@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sopaan · Brain &amp; Mind Academy</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16264A">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
@@ -106,7 +111,14 @@ td{padding:12px 14px;border-bottom:1px solid #EFE8D6;vertical-align:middle}
 .sheetbar b{font-family:Fraunces,serif;font-size:18px;font-weight:600}
 .sheetwrap iframe{flex:1;border:none;width:100%}
 .confirm{position:fixed;inset:0;z-index:90;background:rgba(20,18,14,.55);display:flex;align-items:center;justify-content:center;padding:16px}
-.confirm .box{background:#fff;border-radius:16px;padding:24px;max-width:440px;width:100%}
+.confirm .box{background:#fff;border-radius:16px;padding:24px;max-width:480px;width:100%;max-height:90vh;overflow:auto}
+.notice{display:flex;gap:10px;align-items:flex-start;background:#FFF7E3;border:1px solid #EBD9A6;border-radius:12px;padding:12px 14px;font-size:15px;color:#4A3B17}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:6px 10px;border-radius:99px;background:var(--paper2);color:#5A4A24}
+.ring{--p:0;width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),#EFE8D6 0);display:flex;align-items:center;justify-content:center;flex:none}
+.ring span{width:70px;height:70px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:600 18px 'IBM Plex Mono',monospace;color:var(--navy)}
+.stat{display:flex;flex-direction:column;gap:2px;min-width:90px}.stat b{font-family:Fraunces,serif;font-size:28px;color:var(--navy)}.stat span{font-size:13.5px;color:var(--soft)}
+.att{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid #EFE8D6}.att:last-child{border-bottom:none}
+.seclabel{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--goldtx);font-weight:700}
 </style>
 </head>
 <body>
@@ -122,7 +134,8 @@ let DEV=LS.get('sopaan-device'); if(!DEV){ DEV='d-'+Math.random().toString(36).s
 const devName=()=>{ const u=navigator.userAgent; return (/Edg/.test(u)?'Edge':/Chrome/.test(u)?'Chrome':/Safari/.test(u)?'Safari':/Firefox/.test(u)?'Firefox':'Browser')+' on '+(/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Mac/.test(u)?'Mac':/Win/.test(u)?'Windows':'device'); };
 
 let token=LS.get('sopaan-token'), role=LS.get('sopaan-role')||'';
-let view={page: token?role:'home', loginRole:'student', tab:''}; let D=null; let catalog=null; let msg=''; let busy=false;
+const REF=new URLSearchParams(location.search).get('ref'); let refInfo=null, refDone=null;
+let view={page: REF?'refer':token?role:'home', loginRole:'student', tab:''}; let D=null; let catalog=null; let msg=''; let busy=false;
 let sel=null, selT=null, enrol={ids:new Set(),prog:'',q:''}, slips=[], mapProg='', mapData=null, clockMini=false, clockTimer=null, poller=null, offset=0;
 
 async function api(action,data){
@@ -139,10 +152,37 @@ const loading=()=>`<div class="loading"><span class="spin" aria-hidden="true"></
 
 function render(){
   const app=document.getElementById('app');
+  if(view.page==='refer'){ app.innerHTML=referView(); bindRefer(); return; }
   if(view.page==='home') app.innerHTML=homeView();
   else if(!D) app.innerHTML=header('',role)+loading();
   else app.innerHTML= role==='student'?studentView(): role==='teacher'?staffView('teacher'): staffView('admin');
   bind(); drawClock();
+}
+
+/* ================= REFER A FRIEND (link from the monthly report; no sign-in) ================= */
+function referView(){
+  const top=`<header class="top"><div class="bar"><span class="brand"><span class="crest">S</span><span><span class="bt1">Brain &amp; Mind Academy</span><span class="bt2">Sopaan</span></span></span></div></header>`;
+  let body;
+  if(!refInfo) body=loading();
+  else if(!refInfo.ok) body=`<div class="card"><h1 style="font-size:28px">Link not valid</h1><p style="color:var(--soft)">${esc(refInfo.msg)}</p></div>`;
+  else if(refDone) body=`<div class="card" style="text-align:center;padding:36px 24px"><div style="font-size:44px" aria-hidden="true">🎉</div><h1 style="font-size:30px;margin-top:6px">Thank you${refInfo.parent?', '+esc(refInfo.parent):''}!</h1><p style="color:var(--soft);font-size:16px;max-width:460px;margin:10px auto 0">We have your referral for <b>${esc(refDone)}</b>. Our team will get in touch with them soon.</p><button class="btn ghost" type="button" id="rfmore" style="margin-top:18px">Refer another friend</button></div>`;
+  else body=`<form class="card" id="rfform" novalidate><span class="seclabel">Refer a friend</span><h1 style="font-size:30px;margin:6px 0 4px">Know a family who would enjoy Sopaan?</h1><p style="color:var(--soft);margin:0 0 6px">${refInfo.student?esc(refInfo.student)+' learns with us. ':''}Share a friend's details and our team will contact them.</p>
+    <label class="l" for="rfp">Your name</label><input class="f" id="rfp" value="${esc(refInfo.parent)}" autocomplete="name">
+    <label class="l" for="rfn">Friend's name</label><input class="f" id="rfn" required>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 12px"><div><label class="l" for="rfph">Friend's phone (with country code)</label><input class="f" id="rfph" type="tel" placeholder="+91 98765 43210"></div><div><label class="l" for="rfe">Friend's email</label><input class="f" id="rfe" type="email"></div></div>
+    <label class="l" for="rfi">Interested in</label><select class="f" id="rfi"><option value="">Not sure yet</option>${(refInfo.groups||[]).map(g=>`<option>${esc(g)}</option>`).join('')}</select>
+    <label class="l" for="rfm">Anything we should know? (optional)</label><textarea class="f" id="rfm" rows="3" placeholder="e.g. Grade 10, preparing for SAT next year"></textarea>
+    <div id="rferr"></div><button class="btn" type="submit" style="margin-top:14px">Send referral</button></form>`;
+  return top+`<div class="wrap" style="max-width:640px">${body}</div>`;
+}
+function bindRefer(){
+  if(!refInfo){ if(!window._refLoading){ window._refLoading=1; api('referInfo',{ref:REF}).then(j=>{ refInfo=j; render(); }); } return; }
+  const m=document.getElementById('rfmore'); if(m) m.onclick=()=>{ refDone=null; render(); };
+  const f=document.getElementById('rfform'); if(!f) return;
+  f.onsubmit=async e=>{ e.preventDefault(); const g=id=>document.getElementById(id).value.trim(), b=f.querySelector('button[type=submit]');
+    const body={ref:REF,parentName:g('rfp'),friendName:g('rfn'),friendPhone:g('rfph'),friendEmail:g('rfe'),interest:g('rfi'),message:g('rfm')};
+    b.disabled=true; b.textContent='Sending…'; const j=await api('refer',body);
+    if(j.ok){ refDone=body.friendName; render(); } else { b.disabled=false; b.textContent='Send referral'; document.getElementById('rferr').innerHTML='<div class="err" role="alert">'+esc(j.msg)+'</div>'; } };
 }
 
 /* ================= SIGN-IN PAGE ================= */
@@ -185,8 +225,26 @@ async function doLogin(){
   const j=await api('login',body); busy=false;
   if(!j.ok){ render(); if(r==='student'){ $('#sid').value=body.login; } else { $('#em').value=body.email; } $('#lerr').innerHTML='<div class="err">'+esc(j.msg)+'</div>'; return; }
   token=j.token; role=j.role; LS.set('sopaan-token',token); LS.set('sopaan-role',role);
-  view={page:role,tab:role==='admin'?'teachers':'students'}; D=null; render(); await refresh(); startPolling(); window.scrollTo(0,0);
+  view={page:role,tab:'home'}; D=null; render(); await refresh(); startPolling(); window.scrollTo(0,0);
 }
+
+/* ================= TIMETABLE HELPERS ================= */
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const ZONES={IST:'Asia/Kolkata',EST:'America/New_York',CST:'America/Chicago',PST:'America/Los_Angeles',Dubai:'Asia/Dubai'};
+const ZNAME={IST:'India (IST)',EST:'US Eastern (EST/EDT)',CST:'US Central (CST/CDT)',PST:'US Pacific (PST/PDT)',Dubai:'Dubai (GST)'};
+let VIEWZ=LS.get('sopaan-viewzone')||''; const vz=()=>VIEWZ&&ZONES[VIEWZ]?{timeZone:ZONES[VIEWZ]}:{};
+const vzLabel=()=>VIEWZ&&ZONES[VIEWZ]?VIEWZ:'your time';
+function zoneSwitch(){ return `<label style="display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--soft)">Show times in <select class="f" data-viewzone style="width:auto;padding:7px 10px;font-size:14px"><option value="">My time</option>${Object.keys(ZONES).map(k=>`<option value="${k}" ${VIEWZ===k?'selected':''}>${ZNAME[k]}</option>`).join('')}</select></label>`; }
+function inZone(ms,lab){ return new Date(ms).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',timeZone:ZONES[lab]})+' '+lab; }
+function fmtWhen(ms){ const d=new Date(ms); return d.toLocaleDateString(undefined,Object.assign({weekday:'short',day:'numeric',month:'short'},vz()))+' · '+d.toLocaleTimeString(undefined,Object.assign({hour:'numeric',minute:'2-digit'},vz())); }
+function fmtTime(ms){ return new Date(ms).toLocaleTimeString(undefined,Object.assign({hour:'numeric',minute:'2-digit'},vz())); }
+function rel(ms){ const now=Date.now(), diff=ms-now; if(diff<=0) return 'now'; const sameDay=a=>new Date(a).toDateString(); if(sameDay(ms)===sameDay(now)){ const h=Math.floor(diff/3600000), m=Math.round((diff%3600000)/60000); return h?'in '+h+' h '+m+' min':'in '+m+' min'; }
+  const days=Math.round((new Date(new Date(ms).toDateString())-new Date(new Date(now).toDateString()))/86400000); return days===1?'tomorrow':'in '+days+' days'; }
+function slotText(s){ const z=' '+(s.tz||''); return s.type==='Once'? 'One class on '+s.date+' at '+s.time+z : 'Every '+s.days.join(', ')+' at '+s.time+z+(s.from?' from '+s.from:'')+(s.until?' until '+s.until:''); }
+function gcal(slot,title,details){ if(!slot.nextStart) return ''; const z=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  let u='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates='+z(slot.nextStart)+'/'+z(slot.nextStart+slot.minutes*60000)+'&details='+encodeURIComponent(details);
+  if(slot.type==='Weekly'){ const by=slot.days.map(d=>d.slice(0,2).toUpperCase()).join(','); u+='&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY='+by+(slot.until?';UNTIL='+slot.until.replace(/-/g,'')+'T235959Z':'')); }
+  return u; }
 
 /* ================= LIVE CLASS ================= */
 function startPolling(){ clearInterval(poller); poller=setInterval(async()=>{ if(!token) return;
@@ -210,7 +268,7 @@ function drawClock(){
    <div class="row full" style="justify-content:center"><a class="cbtn go" href="${esc(s.meet)}" target="_blank" rel="noopener">Google Meet</a>${s.wb?`<a class="cbtn" href="${esc(s.wb)}" target="_blank" rel="noopener">Whiteboard</a>`:''}</div>
    <div class="row" style="justify-content:center;gap:8px"><button class="cbtn" id="cmin" type="button">${clockMini?'Expand':'Minimise'}</button>${who!=='student'?'<button class="cbtn" id="cend" type="button">End class</button>':''}</div></div>`;
   document.getElementById('cmin').onclick=()=>{ clockMini=!clockMini; drawClock(); };
-  const ce=document.getElementById('cend'); if(ce) ce.onclick=async()=>{ const j=await api('classEnd',{sid:s.id}); if(j.ok){ s.live=null; toast('Class ended.'); render(); } else toast(j.msg); };
+  const ce=document.getElementById('cend'); if(ce) ce.onclick=()=>endClassBox(s);
   const tick=()=>{ const el=document.getElementById('ct'); if(!el) return; const left=Math.max(0,mins*60-Math.floor((Date.now()+offset-c.sess.start)/1000)); const t=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
     el.textContent=t; document.getElementById('cm').textContent=t; const arc=document.getElementById('arc'); arc.setAttribute('stroke-dashoffset',String(603.2*(1-left/(mins*60))));
     document.getElementById('cs').textContent= left===0?"time's up":left<=300?'last 5 minutes':'remaining'; if(left<=300) arc.setAttribute('stroke', left===0?'#E38884':'#E0B75B'); };
@@ -223,19 +281,56 @@ function studentView(){
   const cur=its.find(i=>i.status==='in progress')||its.find(i=>i.status==='open');
   let ph='',rows=''; its.forEach(it=>{ if(it.section!==ph){ ph=it.section; rows+=`<div class="phase">${esc(ph||'Sheets')}</div>`; }
     rows+=`<div class="it"><span class="n mono">${String(it.step).padStart(2,'0')}</span><div class="t"><b>${esc(it.title)}</b><span>${esc(it.type)}</span></div>${it.status==='finished'?'<span class="pill p-gold">Already attempted</span>':it.status==='in progress'?'<span class="pill p-info">In progress</span>':'<span class="pill p-mute">Open</span>'}${it.status==='finished'?'':`<button class="btn sm" data-open="${esc(it.id)}" type="button">${it.status==='in progress'?'Resume':'Start'}</button>`}</div>`; });
-  return header('','Student')+`<div class="wrap" style="display:flex;flex-direction:column;gap:22px">
+  return header('','Student')+`<div class="wrap" style="display:flex;flex-direction:column;gap:22px">${noticesHtml(D.notices)}
    <div><span style="font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Your program</span><h1 style="font-size:34px">${esc(s.progName)}</h1><span style="color:var(--soft)">${done} of ${its.length} done · <b>${esc(s.name)}</b> <span class="mono">${esc(s.id)}</span> · devices ${s.devices} / 3</span></div>
    <div class="card" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;${live?'border:2px solid #2E6B47;background:#F3FAF5':''}"><div><span style="font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:${live?'#1F5A37':'var(--goldtx)'};font-weight:700">${live?'Your class is live':'Live class'}</span><h2 style="font-size:22px;margin-top:4px">${s.meet?'With '+esc(s.teacherName||'your teacher'):'No class link yet'}</h2><span style="color:var(--soft);font-size:14.5px">${s.meet?D.classMinutes+'-minute class on Google Meet'+(s.wb?', with a shared Canva whiteboard':''):'Your teacher will add your class link.'}</span></div><div class="row">${classButtons(s,'student',live)}</div></div>
+   ${progressCard()}
+   ${homeworkCard()}
+   ${timetableCard()}
+   ${classRecordCard()}
+   ${doubtsCard()}
    ${cur?`<div class="card" style="background:var(--navy);color:#F4EFDF;border:none"><span style="font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldlt);font-weight:700">${cur.status==='in progress'?'Continue where you stopped':'Next step'}</span><h2 style="color:#F4EFDF;font-size:24px;margin:6px 0">${esc(cur.title)}</h2><div class="row"><span style="color:#CFD7EA">Step ${cur.step} of ${its.length}</span><button class="btn gold" data-open="${esc(cur.id)}" type="button">${cur.status==='in progress'?'Resume':'Start'}</button></div></div>`:''}
    <div class="tbox list">${rows||'<div class="it" style="color:var(--soft)">No sheets in this program yet.</div>'}</div>
    <p style="font-size:14px;color:var(--soft);margin:0">Your login opens only this program. Each sheet can be attempted once: press <b>I'm finished</b> when you are done. Need another try? Ask your teacher.</p></div>`;
+}
+function noticesHtml(list,canDelete){ return (list||[]).map(n=>`<div class="notice" role="status"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A661F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M3 11l18-8v18L3 13z"/><path d="M11 14v6"/></svg><span style="flex:1">${esc(n.message)}${canDelete?`<br><span style="font-size:12.5px;color:var(--soft)">${esc(n.audience)} · ${n.on?new Date(n.on).toLocaleDateString():''}${n.expires?' · until '+esc(n.expires):''}</span>`:''}</span>${canDelete?`<button class="btn ghost sm" data-delnotice="${esc(n.id)}" type="button">Delete</button>`:''}</div>`).join(''); }
+function progressCard(){ const p=D.progress; if(!p) return ''; const pct=p.total?Math.round(p.done/p.total*100):0;
+  return `<div class="card" style="display:flex;flex-wrap:wrap;gap:22px;align-items:center"><div class="ring" style="--p:${pct}" role="img" aria-label="${pct}% complete"><span>${pct}%</span></div>
+   <div class="stat"><b>${p.done}<span style="font-size:16px;color:var(--soft)"> / ${p.total}</span></b><span>sheets done</span></div>
+   <div class="stat"><b>${p.streak}</b><span>day streak${p.streak>=3?' 🔥':''}</span></div>
+   <div class="stat"><b>${p.week}</b><span>done this week</span></div>
+   <div style="flex:1 1 260px;display:flex;flex-wrap:wrap;gap:8px">${p.badges.length?p.badges.map(b=>`<span class="badge">★ ${esc(b.name)}</span>`).join(''):'<span style="color:var(--soft);font-size:14.5px">Finish your first sheet to earn a badge.</span>'}</div>
+   ${p.sections.length>1?`<div style="flex:1 1 100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">${p.sections.map(x=>`<div><div class="row" style="justify-content:space-between;font-size:14px"><span>${esc(x.name)}</span><span class="mono" style="color:var(--soft)">${x.done}/${x.total}</span></div><div style="height:6px;border-radius:99px;background:#EFE8D6;overflow:hidden;margin-top:4px"><div style="width:${x.total?Math.round(x.done/x.total*100):0}%;height:100%;background:var(--navy2)"></div></div></div>`).join('')}</div>`:''}</div>`; }
+function dueText(d){ if(!d) return 'no due date'; const days=Math.round((new Date(d+'T23:59:00')-Date.now())/86400000); return days<0?'overdue':days===0?'due today':days===1?'due tomorrow':'due in '+days+' days'; }
+function homeworkCard(){ const hw=(D.homework||[]); if(!hw.length) return ''; const open=hw.filter(h=>!h.done);
+  return `<div class="card"><div class="row" style="justify-content:space-between"><span class="seclabel">Homework${open.length?' · '+open.length+' to do':''}</span></div><div style="margin-top:10px;border:1px solid #EFE8D6;border-radius:12px">${hw.map(h=>`<div class="att"><span style="flex:1;min-width:0"><b style="display:block;font-size:15.5px">${esc(h.title)}</b><span style="font-size:13.5px;color:var(--soft)">${[h.due?'Due '+esc(h.due):'',h.note?esc(h.note):''].filter(Boolean).join(' · ')}</span></span>${h.done?'<span class="pill p-ok">Done</span>':h.overdue?'<span class="pill p-bad">Overdue</span>':`<span class="pill p-info">${esc(dueText(h.due))}</span>`}${h.done?'':`<button class="btn sm" data-open="${esc(h.item)}" type="button">Start</button>`}</div>`).join('')}</div></div>`; }
+function mm(n){ return n>=60?Math.floor(n/60)+' h'+(n%60?' '+n%60+' min':''):n+' min'; }
+function classRecordCard(){ const r=D.classRecord; if(!r||!r.total) return notesCard();
+  return `<div class="card"><span class="seclabel">My classes</span><div class="row" style="gap:26px;margin:10px 0 12px"><div class="stat"><b>${r.thisMonth}</b><span>in ${esc(r.monthLabel)}${r.thisMonthMins?' · '+mm(r.thisMonthMins):''}</span></div><div class="stat"><b>${r.lastMonth}</b><span>last month</span></div><div class="stat"><b>${r.total}</b><span>in total${r.totalMins?' · '+mm(r.totalMins):''}</span></div></div>
+   <div style="border:1px solid #EFE8D6;border-radius:12px">${r.list.slice(0,8).map(c=>`<div class="att"><span class="mono" style="font-size:13px;color:var(--soft);min-width:150px">${esc(fmtWhen(c.start))}</span><span style="flex:1;min-width:0;font-size:14.5px;white-space:pre-line">${c.notes?esc(c.notes):'<span style="color:var(--soft)">No notes</span>'}</span><span class="pill p-mute">${c.mins?c.mins+' min':'–'}</span></div>`).join('')}</div></div>`; }
+function notesCard(){ const n=D.notes||[]; if(!n.length) return '';
+  return `<div class="card"><span class="seclabel">Notes from your classes</span><div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">${n.map(x=>`<div style="border-left:3px solid var(--gold);padding:4px 12px"><span style="font-size:13px;color:var(--soft)">${esc(fmtWhen(x.start))}</span><div style="font-size:15px;line-height:1.5;white-space:pre-line">${esc(x.notes)}</div></div>`).join('')}</div></div>`; }
+function doubtsCard(){ const d=D.doubts||[];
+  return `<div class="card"><div class="row" style="justify-content:space-between"><span class="seclabel">My doubts</span><button class="btn ghost sm" data-ask="" type="button">Ask a doubt</button></div>${d.length?`<div style="margin-top:10px;border:1px solid #EFE8D6;border-radius:12px">${d.map(x=>`<div class="att"><span style="flex:1;min-width:0"><b style="display:block;font-size:15px">${esc(x.question)}</b><span style="font-size:13px;color:var(--soft)">${x.title?esc(x.title)+' · ':''}${x.asked?new Date(x.asked).toLocaleDateString():''}</span>${x.answer?`<div style="margin-top:6px;font-size:14.5px;background:var(--okbg);color:#1F4F33;border-radius:8px;padding:8px 10px">${esc(x.answer)}</div>`:''}</span>${x.status==='Open'?'<span class="pill p-gold">Waiting</span>':'<span class="pill p-ok">Answered</span>'}</div>`).join('')}</div>`:'<p style="color:var(--soft);font-size:14.5px;margin:8px 0 0">Stuck on something? Ask here or from inside a sheet. Your teacher will answer, often in your next class.</p>'}</div>`; }
+function askBox(item,title){ const d=document.createElement('div'); d.className='confirm'; d.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="akt"><h2 id="akt" style="font-size:22px">Ask your teacher</h2><p style="color:var(--soft);margin:6px 0 0">${title?'About: '+esc(title):'Any question about your program'}</p><label class="l" for="akq">Your question</label><textarea class="f" id="akq" rows="4" placeholder="e.g. I don't understand question 4 in practice set 2"></textarea><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn ghost" type="button" data-no>Cancel</button><button class="btn" type="button" data-yes>Send</button></div></div>`;
+  document.body.appendChild(d); d.querySelector('#akq').focus(); d.querySelector('[data-no]').onclick=()=>d.remove();
+  d.querySelector('[data-yes]').onclick=async()=>{ const q=d.querySelector('#akq').value.trim(); if(q.length<3){ toast('Type your question.'); return; } const j=await api('askDoubt',{item:item||'',question:q}); d.remove(); toast(j.ok?'Sent to your teacher.':j.msg); if(j.ok) refresh(); }; }
+function timetableCard(){
+  const nx=D.next||[], sl=D.slots||[], s=D.student; if(!nx.length&&!sl.length) return '';
+  const first=nx[0];
+  return `<div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start"><div style="flex:1 1 100%;display:flex;justify-content:flex-end">${zoneSwitch()}</div><div style="flex:1 1 260px"><span style="font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Next class (${esc(vzLabel())})</span>
+   ${first?`<h2 style="font-size:26px;margin-top:4px">${esc(fmtWhen(first.start))}</h2><span class="pill p-info" style="margin-top:6px">${esc(rel(first.start))}</span><span style="color:var(--soft);font-size:14.5px;margin-left:8px">${first.minutes} min${first.tz&&first.tz!==VIEWZ?' · class time '+esc(inZone(first.start,first.tz)):''}${first.note?' · '+esc(first.note):''}</span>`:'<p style="color:var(--soft)">No upcoming class in the next 30 days.</p>'}</div>
+   <div style="flex:2 1 320px"><span style="font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Coming up</span>
+   <div style="margin-top:8px;border:1px solid #EFE8D6;border-radius:10px">${nx.slice(0,6).map(o=>`<div class="row" style="justify-content:space-between;padding:9px 12px;border-bottom:1px solid #EFE8D6"><span>${esc(fmtWhen(o.start))}</span><span style="color:var(--soft);font-size:14px">${o.minutes} min${o.tz&&o.tz!==VIEWZ?' · '+esc(inZone(o.start,o.tz)):''}${o.note?' · '+esc(o.note):''}</span></div>`).join('')||'<div style="padding:10px;color:var(--soft)">Nothing scheduled yet.</div>'}</div>
+   ${sl.length?`<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">${sl.map(x=>{ const g=gcal(x,'Sopaan class · '+s.progName,'With '+(s.teacherName||'your teacher')+(s.meet?'\nGoogle Meet: '+s.meet:'')); return `<div class="row" style="justify-content:space-between;gap:8px"><span style="font-size:14.5px">${esc(slotText(x))}</span>${g?`<a class="btn ghost sm" href="${esc(g)}" target="_blank" rel="noopener">Add to Google Calendar</a>`:''}</div>`; }).join('')}</div>`:''}</div></div>`;
 }
 async function openSheet(id){
   document.getElementById('modal').innerHTML=`<div class="sheetwrap">${loading()}</div>`;
   const j=await api('open',{item:id});
   if(!j.ok){ document.getElementById('modal').innerHTML=''; toast(j.msg); refresh(); return; }
-  document.getElementById('modal').innerHTML=`<div class="sheetwrap" role="dialog" aria-label="${esc(j.item.title)}"><div class="sheetbar"><b>${esc(j.item.title)}</b><span style="flex:1"></span><button class="btn ghost sm" id="sclose" type="button">Save and close</button><button class="btn gold sm" id="sfin" type="button">I'm finished</button></div><iframe id="sframe" title="${esc(j.item.title)}"></iframe></div>`;
+  document.getElementById('modal').innerHTML=`<div class="sheetwrap" role="dialog" aria-label="${esc(j.item.title)}"><div class="sheetbar"><b>${esc(j.item.title)}</b><span style="flex:1"></span><button class="btn ghost sm" id="sask" type="button">I'm stuck</button><button class="btn ghost sm" id="sclose" type="button">Save and close</button><button class="btn gold sm" id="sfin" type="button">I'm finished</button></div><iframe id="sframe" title="${esc(j.item.title)}"></iframe></div>`;
   document.getElementById('sframe').srcdoc=j.html;
+  document.getElementById('sask').onclick=()=>askBox(id,j.item.title);
   document.getElementById('sclose').onclick=()=>{ document.getElementById('modal').innerHTML=''; refresh(); };
   document.getElementById('sfin').onclick=()=>confirmBox('Finish this sheet?','After you finish, this sheet is locked for you. Only your teacher can open it again.','Yes, I\'m finished',async()=>{ const f=await api('finish',{item:id}); document.getElementById('modal').innerHTML=''; toast(f.ok?'Well done! This sheet is now finished.':f.msg); refresh(); });
 }
@@ -246,18 +341,18 @@ const P=id=>(D.programs||[]).find(p=>p.id===id);
 const pname=id=>{ const p=P(id); return p?p.name:id; };
 const tname=id=>{ const t=(D.teachers||[]).find(t=>t.id===id); return t?t.name:(id||'—'); };
 function staffView(kind){
-  const tabs = kind==='admin'? [['teachers','Teachers & programs'],['students','All students'],['enrol','Quick enrol'],['addprog','Add program'],['map','Programs & mapping'],['classes','Class log']]
-    : [['students','My students'],['enrol','Quick enrol'],['classes','Class log'],['map','My programs']];
+  const tabs = kind==='admin'? [['home','Home'],['teachers','Teachers & programs'],['referrals','Referrals'+newRefs()],['students','All students'],['calendar','Calendar'],['doubts','Doubts'+openDoubts()],['notices','Announcements'],['enrol','Quick enrol'],['addprog','Add program'],['map','Programs & mapping'],['classes','Class log']]
+    : [['home','Home'],['students','My students'],['calendar','Calendar'],['doubts','Doubts'+openDoubts()],['notices','Announcements'],['enrol','Quick enrol'],['classes','Class log'],['map','My programs']];
   if(!view.tab) view.tab=tabs[0][0];
-  const body= view.tab==='teachers'?aTeachers(): view.tab==='students'?studentsTab(kind): view.tab==='enrol'?enrolTab(kind): view.tab==='addprog'?addProgTab(): view.tab==='classes'?classLog(): mapTab();
+  const body= view.tab==='teachers'?aTeachers(): view.tab==='students'?studentsTab(kind): view.tab==='enrol'?enrolTab(kind): view.tab==='addprog'?addProgTab(): view.tab==='classes'?classLog(): view.tab==='calendar'?calendarTab(kind): view.tab==='home'?homeTab(kind): view.tab==='referrals'?referralsTab(): view.tab==='doubts'?doubtsTab(): view.tab==='notices'?noticesTab(kind): mapTab();
   return header(kind==='admin'?'Admin':'Teacher panel',kind==='admin'?'Admin':'Teacher'+(D.me&&D.me.name?' · '+esc(D.me.name):''))+`<div class="wrap"><div class="tabs" style="margin-bottom:18px">${tabs.map(([k,l])=>`<button type="button" class="tab ${view.tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}<button type="button" class="tab" data-reload style="margin-left:auto">Refresh</button></div>${body}</div>`;
 }
 function studentsTab(kind){
   const list=D.students; const s=sel&&list.find(x=>x.id===sel);
   const rows=list.map(x=>{ const status=x.live?'<span class="pill p-live">In class</span>':!x.prog?'<span class="pill p-mute">No program</span>':x.status!=='Active'?'<span class="pill p-mute">Paused</span>':x.devices.length>=3?'<span class="pill p-bad">Device limit</span>':'<span class="pill p-ok">Active</span>';
-    return `<tr ${sel===x.id?'style="background:#FBF7EC"':''}><td><b>${esc(x.name||'(no name)')}</b><br><span class="mono" style="font-size:12.5px;color:var(--soft)">${esc(x.id)}</span></td>${kind==='admin'?`<td>${esc(tname(x.teacher))}</td>`:''}<td>${x.prog?esc(pname(x.prog)):'<span style="color:var(--soft)">Not enrolled</span>'}</td><td class="mono">${x.prog?x.done+' / '+x.total:'—'}</td><td class="mono">${x.devices.length} / 3</td><td>${status}</td><td><div class="row" style="gap:8px;flex-wrap:nowrap">${classButtons(x,kind,x.live)}<button class="btn ghost sm" data-sel="${esc(x.id)}" type="button">Edit</button></div></td></tr>`; }).join('');
+    return `<tr ${sel===x.id?'style="background:#FBF7EC"':''}><td><b>${esc(x.name||'(no name)')}</b><br><span class="mono" style="font-size:12.5px;color:var(--soft)">${esc(x.id)}</span></td>${kind==='admin'?`<td>${esc(tname(x.teacher))}</td>`:''}<td>${x.prog?esc(pname(x.prog)):'<span style="color:var(--soft)">Not enrolled</span>'}</td><td class="mono">${x.prog?x.done+' / '+x.total:'—'}</td><td class="mono">${x.devices.length} / 3</td><td style="font-size:14px;white-space:nowrap">${x.next?esc(fmtWhen(x.next.start))+'<br><span style="color:var(--soft)">'+esc(rel(x.next.start))+'</span>':'<span style="color:var(--soft)">—</span>'}</td><td>${status}</td><td><div class="row" style="gap:8px;flex-wrap:nowrap">${classButtons(x,kind,x.live)}<button class="btn ghost sm" data-sel="${esc(x.id)}" type="button">Edit</button></div></td></tr>`; }).join('');
   return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h1 style="font-size:32px">${kind==='admin'?'All students':'My students'}</h1><span style="color:var(--soft)">One program per student. Start each class from here.</span></div><button class="btn" data-tab="enrol" type="button">Quick enrol</button></div>
-  <div class="row" style="align-items:flex-start;gap:20px"><div class="tbox" style="flex:999 1 640px"><table><thead><tr><th>Student</th>${kind==='admin'?'<th>Teacher</th>':''}<th>Program</th><th>Progress</th><th>Devices</th><th>Status</th><th>Class</th></tr></thead><tbody>${rows||`<tr><td colspan="7" style="color:var(--soft)">No students yet. Use Quick enrol.</td></tr>`}</tbody></table></div>${s?editPanel(s,kind):''}</div>`;
+  <div class="row" style="align-items:flex-start;gap:20px"><div class="tbox" style="flex:999 1 640px"><table><thead><tr><th>Student</th>${kind==='admin'?'<th>Teacher</th>':''}<th>Program</th><th>Progress</th><th>Devices</th><th>Next class</th><th>Status</th><th>Class</th></tr></thead><tbody>${rows||`<tr><td colspan="8" style="color:var(--soft)">No students yet. Use Quick enrol.</td></tr>`}</tbody></table></div>${s?editPanel(s,kind):''}</div>`;
 }
 function progOptions(cur){ return GROUPS.map(g=>{ const ps=(D.programs||[]).filter(p=>p.group===g); return ps.length?`<optgroup label="${g}">${ps.map(p=>`<option value="${esc(p.id)}" ${p.id===cur?'selected':''}>${esc(p.name)}</option>`).join('')}</optgroup>`:''; }).join('')+(cur&&!P(cur)?`<option value="${esc(cur)}" selected>${esc(cur)} (not in your programs)</option>`:''); }
 function editPanel(s,kind){
@@ -268,10 +363,41 @@ function editPanel(s,kind){
    <label class="l" for="emeet">Google Meet link</label><input class="f" id="emeet" placeholder="https://meet.google.com/xxx-xxxx-xxx" value="${esc(s.meet)}">
    <label class="l" for="ewb">Canva whiteboard link</label><input class="f" id="ewb" placeholder="https://www.canva.com/design/…/edit" value="${esc(s.wb)}">
    <div class="row" style="margin-top:10px"><button class="btn" data-act="save" type="button">Save</button><span class="mono" style="font-size:15px">PIN <b>${esc(s.pin)}</b></span><button class="btn ghost sm" data-act="pin" type="button">Reset PIN</button><button class="btn ghost sm" data-act="pause" type="button">${s.status==='Active'?'Pause':'Re-activate'}</button></div>
+   <label class="l">Student &amp; parent contact</label>
+   <div style="display:grid;grid-template-columns:1fr;gap:8px"><input class="f" id="cemail" type="email" placeholder="Student email" value="${esc(s.email)}" aria-label="Student email"><input class="f" id="cpname" placeholder="Parent name" value="${esc(s.parentName)}" aria-label="Parent name"><input class="f" id="cpemail" type="email" placeholder="Parent email" value="${esc(s.parentEmail)}" aria-label="Parent email"><input class="f" id="cpphone" type="tel" placeholder="Parent phone, e.g. +91 98765 43210" value="${esc(s.parentPhone)}" aria-label="Parent phone"></div>
+   <div class="row" style="gap:8px">${s.parentPhone?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${esc(s.parentPhone.replace(/[^0-9]/g,''))}?text=${encodeURIComponent('Hello'+(s.parentName?' '+s.parentName:'')+', this is from Brain & Mind Academy about '+(s.name||s.id)+'.'+(s.next?' Next class: '+fmtWhen(s.next.start)+'.':''))}">WhatsApp parent</a><span class="mono" style="font-size:13.5px">${esc(s.parentPhone)}</span>`:''}${s.parentEmail?`<span class="mono" style="font-size:13.5px">${esc(s.parentEmail)}</span>`:''}</div>
+   <span style="font-size:13px;color:var(--soft)">The student email gets class reminders and calendar invites with the Meet link. The parent email only gets the monthly report, with no class links, so parents cannot join the class. (Emails start once turned on in the Google Sheet menu.) Press Save above to store contact details.</span>
+   <label class="l">Attendance · last 30 days</label>
+   <div class="row" style="gap:8px"><span class="pill p-ok">${s.attended30||0} attended</span><span class="pill ${(s.missed||[]).length?'p-bad':'p-mute'}">${(s.missed||[]).length} missed</span>${(s.missed||[]).slice(-3).map(m=>`<span style="font-size:13px;color:var(--soft)">${esc(fmtWhen(m))}</span>`).join(' · ')}</div>
+   ${s.classRecord?`<label class="l">Class record</label><div class="row" style="gap:8px"><span class="pill p-info">${s.classRecord.thisMonth} in ${esc(s.classRecord.monthLabel)}${s.classRecord.thisMonthMins?' · '+mm(s.classRecord.thisMonthMins):''}</span><span class="pill p-mute">${s.classRecord.lastMonth} last month</span><span class="pill p-mute">${s.classRecord.total} in total</span></div>${s.classRecord.list.slice(0,5).map(c=>`<div style="font-size:13.5px;border-bottom:1px solid #EFE8D6;padding:4px 0"><span class="mono" style="color:var(--soft)">${esc(fmtWhen(c.start))}</span> · ${c.mins?c.mins+' min':'running'}${c.notes?' · '+esc(c.notes):''}</div>`).join('')}`:''}
+   <label class="l">Homework · ${(s.homework||[]).filter(h=>!h.done).length} to do</label>
+   ${(s.homework||[]).map(h=>`<div class="row" style="justify-content:space-between;border:1px solid #EFE8D6;border-radius:10px;padding:8px 12px"><span style="flex:1;min-width:0;font-size:14px">${esc((D.titles||{})[h.item]||h.item)}${h.due?' · due '+esc(h.due):''}</span>${h.done?'<span class="pill p-ok">Done</span>':h.overdue?'<span class="pill p-bad">Overdue</span>':'<span class="pill p-info">To do</span>'}<button class="btn ghost sm" data-rmhw="${esc(h.id)}" type="button">Remove</button></div>`).join('')}
+   <div class="row" style="gap:8px"><select class="f" id="hwitem" multiple size="4" style="flex:2 1 220px" aria-label="Sheets for homework">${hwOptions(s)}</select><div style="flex:1 1 120px;display:flex;flex-direction:column;gap:6px"><input class="f" id="hwdue" type="date" aria-label="Due date"><button class="btn sm" data-act="addhw" type="button">Set homework</button></div></div>
+   <span style="font-size:13px;color:var(--soft)">Hold Ctrl (or Cmd) to pick several sheets.</span>
    <label class="l">Devices · ${s.devices.length} of 3</label>${s.devices.length?s.devices.map(d=>`<div class="row" style="justify-content:space-between;border:1px solid #EFE8D6;border-radius:10px;padding:9px 12px"><span>${esc(d.label)}</span><button class="btn ghost sm" data-rmdev="${esc(d.id)}" type="button">Remove</button></div>`).join(''):'<span style="color:var(--soft);font-size:14.5px">No devices yet.</span>'}
+   <label class="l">Class timetable</label>
+   ${(s.slots||[]).length?s.slots.map(x=>`<div class="row" style="justify-content:space-between;border:1px solid #EFE8D6;border-radius:10px;padding:9px 12px"><span style="flex:1;min-width:0;font-size:14.5px">${esc(slotText(x))}${x.note?' · '+esc(x.note):''} <span style="color:var(--soft)">(${x.minutes} min)</span></span><button class="btn ghost sm" data-rmslot="${esc(x.id)}" type="button">Remove</button></div>`).join(''):'<span style="color:var(--soft);font-size:14.5px">No classes scheduled yet.</span>'}
+   <div style="border:1px dashed #D9D0BA;border-radius:12px;padding:12px;margin-top:6px;display:flex;flex-direction:column;gap:8px">
+    <div class="row" style="gap:8px"><label style="display:flex;gap:6px;align-items:center;font-size:14.5px"><input type="radio" name="stype" value="Weekly" checked style="accent-color:var(--navy2)">Every week</label><label style="display:flex;gap:6px;align-items:center;font-size:14.5px"><input type="radio" name="stype" value="Once" style="accent-color:var(--navy2)">One class</label></div>
+    <div class="row" id="sdays" style="gap:6px">${DOW.map(d=>`<label style="display:flex;gap:4px;align-items:center;font-size:14px;border:1px solid #E4DCC8;border-radius:8px;padding:5px 8px"><input type="checkbox" value="${d}" style="accent-color:var(--navy2)">${d}</label>`).join('')}</div>
+    <div class="row" style="gap:8px;align-items:flex-end"><div id="sdatebox" style="display:none;flex:1 1 140px"><label class="l" for="sdate" style="margin-top:0">Date</label><input class="f" id="sdate" type="date"></div><div style="flex:1 1 110px"><label class="l" for="stime" style="margin-top:0">Time</label><input class="f" id="stime" type="time" value="18:00"></div><div style="flex:1 1 150px"><label class="l" for="stz" style="margin-top:0">Time zone</label><select class="f" id="stz">${Object.keys(ZONES).map(k=>`<option value="${k}" ${k===(LS.get('sopaan-lastzone')||'IST')?'selected':''}>${ZNAME[k]}</option>`).join('')}</select></div><div style="flex:1 1 90px"><label class="l" for="smin" style="margin-top:0">Minutes</label><input class="f" id="smin" type="number" min="10" max="240" value="${D.classMinutes||55}"></div></div>
+    <div class="row" id="srange" style="gap:8px"><div style="flex:1 1 140px"><label class="l" for="sfrom" style="margin-top:0">Starts (optional)</label><input class="f" id="sfrom" type="date"></div><div style="flex:1 1 140px"><label class="l" for="suntil" style="margin-top:0">Ends (optional)</label><input class="f" id="suntil" type="date"></div></div>
+    <input class="f" id="snote" placeholder="Note (optional), e.g. Unit 3 revision">
+    <button class="btn sm" data-act="addslot" type="button" style="align-self:flex-start">Add to timetable</button></div>
    <label class="l">Finished sheets · ${s.finished.length}</label>${s.finished.length?s.finished.map(i=>`<div class="row" style="justify-content:space-between;border:1px solid #EFE8D6;border-radius:10px;padding:9px 12px"><span class="mono" style="flex:1;min-width:0;font-size:13.5px">${esc(i)}</span><button class="btn ghost sm" data-reatt="${esc(i)}" type="button">Allow re-attempt</button></div>`).join(''):'<span style="color:var(--soft);font-size:14.5px">None yet.</span>'}
    ${kind==='admin'?'<button class="btn ghost sm" data-act="del" type="button" style="margin-top:10px;align-self:flex-start">Delete student</button>':''}</aside>`;
 }
+const PITEMS={}; let pitemsLoading={};
+function hwOptions(s){ if(!s.prog) return '<option disabled>Enrol the student first</option>'; const list=PITEMS[s.prog];
+  if(!list){ if(!pitemsLoading[s.prog]){ pitemsLoading[s.prog]=1; api('program',{prog:s.prog}).then(j=>{ if(j.ok){ PITEMS[s.prog]=j.items; render(); } }); } return '<option disabled>Loading sheets…</option>'; }
+  const fin=new Set(s.finished), hw=new Set((s.homework||[]).map(h=>h.item));
+  return list.map(i=>`<option value="${esc(i.id)}" ${fin.has(i.id)||hw.has(i.id)?'disabled':''}>${String(i.step).padStart(2,'0')} · ${esc(i.title)}${fin.has(i.id)?' (done)':hw.has(i.id)?' (set)':''}</option>`).join(''); }
+function endClassBox(s){ const d=document.createElement('div'); d.className='confirm';
+  d.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="ect"><h2 id="ect" style="font-size:22px">End class · ${esc(s.name||s.id)}</h2><label class="l" for="ecn">Class notes for the student and parent</label><textarea class="f" id="ecn" rows="4" placeholder="What we covered, and what to practise"></textarea>
+   <label class="l" for="echw">Homework (optional)</label><select class="f" id="echw" multiple size="5">${hwOptions(s)}</select><label class="l" for="ecdue">Due</label><input class="f" id="ecdue" type="date">
+   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn ghost" type="button" data-no>Keep class running</button><button class="btn" type="button" data-yes>End class</button></div></div>`;
+  document.body.appendChild(d); d.querySelector('[data-no]').onclick=()=>d.remove();
+  d.querySelector('[data-yes]').onclick=async()=>{ const hw=[...d.querySelector('#echw').selectedOptions].map(o=>o.value); const j=await api('classEnd',{sid:s.id,notes:d.querySelector('#ecn').value,homework:hw,due:d.querySelector('#ecdue').value}); d.remove(); if(j.ok){ s.live=null; toast('Class ended'+(j.homework?' · '+j.homework+' homework set':'')+'.'); refresh(); } else toast(j.msg); }; }
 function enrolTab(kind){
   const q=enrol.q.toLowerCase(), mine=D.students;
   const groups=GROUPS.map(g=>{ const ps=(D.programs||[]).filter(p=>p.group===g&&(!q||p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q))); if(!ps.length) return '';
@@ -283,6 +409,48 @@ function enrolTab(kind){
   <section class="card" style="flex:2 1 440px"><h2 style="font-size:21px">2 · Pick one program</h2><label class="sr" for="pq">Search programs</label><input class="f" id="pq" placeholder="Search ${(D.programs||[]).length} programs" value="${esc(enrol.q)}" style="margin-top:12px">${groups||'<p style="color:var(--soft)">No programs have been given to you yet. Ask the admin.</p>'}</section>
   <section class="card" style="flex:1 1 280px;background:var(--navy);color:#F4EFDF;border:none"><h2 style="font-size:21px;color:#F4EFDF">3 · Confirm</h2><p style="color:#CFD7EA">${chosen.length} student${chosen.length===1?'':'s'} · ${enrol.prog?esc(pname(enrol.prog)):'no program picked'}</p><button class="btn gold" data-act="doenrol" type="button" ${chosen.length&&enrol.prog?'':'disabled'} style="width:100%">Enrol</button></section></div>
   ${slips.length?`<h2 style="font-size:22px;margin:26px 0 10px">Login slips</h2><div class="row" style="align-items:stretch">${slips.map(s=>`<div class="slip"><span style="font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Sopaan · Brain &amp; Mind Academy</span><b style="display:block;font-size:18px;margin:6px 0">${esc(s.name)}</b><div class="row"><span class="mono">ID <b>${esc(s.id)}</b></span><span class="mono">PIN <b>${esc(s.pin)}</b></span></div><span style="font-size:13.5px;color:var(--soft)">Program: ${esc(pname(s.prog))} · up to 3 devices</span></div>`).join('')}</div><button class="btn ghost sm" data-act="copyslips" type="button" style="margin-top:10px">Copy slips as text</button>`:''}`;
+}
+function newRefs(){ const n=(D.referrals||[]).filter(r=>r.status==='New').length; return n?' ('+n+')':''; }
+function referralsTab(){ const L=D.referrals||[], st=D.refStatus||['New','Contacted','Joined','Not interested'];
+  const tone={New:'p-gold',Contacted:'p-info',Joined:'p-ok','Not interested':'p-mute'};
+  return `<h1 style="font-size:32px;margin-bottom:4px">Referrals</h1><p style="color:var(--soft);margin:0 0 14px">Friends referred by parents from the monthly report. Each new referral is also emailed to you and saved in the Referrals tab of the Google Sheet.</p>
+  <div class="row" style="gap:8px;margin-bottom:12px">${st.map(x=>`<span class="pill ${tone[x]||'p-mute'}">${L.filter(r=>r.status===x).length} ${esc(x)}</span>`).join('')}</div>
+  <div class="tbox">${L.map(r=>`<div class="att" style="flex-wrap:wrap"><span style="flex:2 1 260px;min-width:0"><b style="font-size:16px">${esc(r.name)}</b>${r.interest?' · <span style="color:var(--soft)">'+esc(r.interest)+'</span>':''}<br><span style="font-size:14px">${r.phone?`<a href="https://wa.me/${esc(r.phone.replace(/[^0-9]/g,''))}" target="_blank" rel="noopener">${esc(r.phone)}</a>`:''}${r.phone&&r.email?' · ':''}${r.email?`<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>`:''}</span>${r.message?`<div style="font-size:14px;margin-top:4px">${esc(r.message)}</div>`:''}<div style="font-size:13px;color:var(--soft);margin-top:4px">From ${esc(r.parent||'parent')} · parent of ${esc(r.student)} (${esc(r.sid)}) · ${r.on?new Date(r.on).toLocaleDateString():''}</div></span>
+   <span style="flex:1 1 220px;display:flex;flex-direction:column;gap:6px"><select class="f" data-refst="${esc(r.id)}" aria-label="Status">${st.map(x=>`<option ${x===r.status?'selected':''}>${esc(x)}</option>`).join('')}</select><input class="f" data-refnote="${esc(r.id)}" value="${esc(r.notes)}" placeholder="Notes (saved when you leave the box)" aria-label="Notes"></span></div>`).join('')||'<div class="att" style="color:var(--soft)">No referrals yet. Every monthly report has a "Refer a friend" button for parents.</div>'}</div>`; }
+function openDoubts(){ const n=(D.doubts||[]).filter(d=>d.status==='Open').length; return n?' ('+n+')':''; }
+function daysSince(d){ if(!d) return null; return Math.floor((Date.now()-new Date(d+'T00:00:00'))/86400000); }
+function homeTab(kind){
+  const st=D.students, nm=id=>{ const s=st.find(x=>x.id===id); return s?s.name||id:id; };
+  const inactive=st.filter(s=>s.prog&&s.status==='Active'&&(s.lastActive===null||daysSince(s.lastActive)>=7));
+  const overdue=st.filter(s=>s.hwOverdue>0), missed=st.filter(s=>(s.missed||[]).length), od=(D.doubts||[]).filter(d=>d.status==='Open');
+  const todayKey=new Date().toDateString(), today=(D.upcoming||[]).filter(o=>new Date(o.start).toDateString()===todayKey);
+  const box=(title,count,body,tone)=>`<div class="card" style="flex:1 1 300px"><div class="row" style="justify-content:space-between"><h2 style="font-size:20px">${title}</h2><span class="pill ${count?tone:'p-ok'}">${count||'All clear'}</span></div><div style="margin-top:10px">${body}</div></div>`;
+  const row=(s,extra)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid #EFE8D6;padding:8px 0"><span><b>${esc(s.name||s.id)}</b> <span class="mono" style="font-size:12.5px;color:var(--soft)">${esc(s.id)}</span><br><span style="font-size:13.5px;color:var(--soft)">${extra}</span></span><button class="btn ghost sm" data-gosel="${esc(s.id)}" type="button">Open</button></div>`;
+  return `${noticesHtml(D.notices)}<h1 style="font-size:32px;margin:6px 0 4px">Good to know today</h1><p style="color:var(--soft);margin:0 0 16px">What needs your attention across ${st.length} student${st.length===1?'':'s'}.</p>
+  <div class="row" style="align-items:stretch;gap:16px">
+   ${box("Today's classes",today.length,today.length?today.map(o=>{ const s=st.find(x=>x.id===o.sid)||{id:o.sid}; return `<div class="row" style="justify-content:space-between;border-bottom:1px solid #EFE8D6;padding:8px 0"><span><b>${esc(fmtTime(o.start))}</b> · ${esc(s.name||s.id)}</span>${s.meet?classButtons(s,kind,s.live):''}</div>`; }).join(''):'<span style="color:var(--soft)">No classes today.</span>','p-info')}
+   ${box('Open doubts',od.length,od.slice(0,5).map(d=>`<div style="border-bottom:1px solid #EFE8D6;padding:8px 0"><b>${esc(nm(d.sid))}</b>: ${esc(d.question)}</div>`).join('')+(od.length?'<button class="btn ghost sm" data-tab="doubts" type="button" style="margin-top:8px">Answer doubts</button>':''),'p-gold')}
+   ${box('Inactive 7+ days',inactive.length,inactive.slice(0,8).map(s=>row(s,s.lastActive?'Last active '+daysSince(s.lastActive)+' days ago':'Not started yet')).join(''),'p-bad')}
+   ${box('Overdue homework',overdue.length,overdue.slice(0,8).map(s=>row(s,s.hwOverdue+' overdue')).join(''),'p-bad')}
+   ${box('Missed classes (30 days)',missed.length,missed.slice(0,8).map(s=>row(s,s.missed.length+' missed · last '+fmtWhen(s.missed[s.missed.length-1]))).join(''),'p-bad')}
+  </div>`;
+}
+function doubtsTab(){ const d=D.doubts||[], nm=id=>{ const s=D.students.find(x=>x.id===id); return s?s.name||id:id; };
+  return `<h1 style="font-size:32px;margin-bottom:12px">Doubts</h1><div class="tbox">${d.map(x=>`<div class="att"><span style="flex:1;min-width:0"><b>${esc(nm(x.sid))}</b> <span class="mono" style="font-size:12.5px;color:var(--soft)">${esc(x.sid)}</span>${x.title?' · <span style="color:var(--soft)">'+esc(x.title)+'</span>':''}<div style="font-size:15.5px;margin:4px 0">${esc(x.question)}</div>${x.status==='Open'?`<div class="row" style="gap:8px"><input class="f" data-ansin="${esc(x.id)}" placeholder="Short answer (or leave empty: 'Discussed in class')" style="flex:1 1 260px"><button class="btn sm" data-ans="${esc(x.id)}" type="button">Mark answered</button></div>`:`<div style="font-size:14.5px;background:var(--okbg);color:#1F4F33;border-radius:8px;padding:8px 10px">${esc(x.answer)}</div>`}</span>${x.status==='Open'?'<span class="pill p-gold">Open</span>':'<span class="pill p-ok">Answered</span>'}</div>`).join('')||'<div class="att" style="color:var(--soft)">No doubts yet. Students can ask from inside any sheet.</div>'}</div>`; }
+function noticesTab(kind){ const progs=D.programs||[];
+  const aud= kind==='admin'? `<option value="All">Everyone</option>${(D.teachers||[]).map(t=>`<option value="${esc(t.id)}">Students of ${esc(t.name)}</option>`).join('')}${progs.map(p=>`<option value="${esc(p.id)}">Program: ${esc(p.name)}</option>`).join('')}`
+    : `<option value="${esc(D.me.id)}">All my students</option>${progs.map(p=>`<option value="${esc(p.id)}">Program: ${esc(p.name)}</option>`).join('')}`;
+  return `<h1 style="font-size:32px;margin-bottom:12px">Announcements</h1><div class="row" style="align-items:flex-start;gap:20px"><form class="card" id="nform" style="flex:1 1 340px"><h2 style="font-size:21px">Post an announcement</h2><label class="l" for="nmsg">Message</label><textarea class="f" id="nmsg" rows="3" placeholder="e.g. No class on Friday. New mock test added!"></textarea><label class="l" for="naud">Who sees it</label><select class="f" id="naud">${aud}</select><label class="l" for="nexp">Show until (optional)</label><input class="f" id="nexp" type="date"><button class="btn" type="submit" style="margin-top:14px">Post</button></form>
+  <div style="flex:2 1 420px;display:flex;flex-direction:column;gap:10px">${noticesHtml(D.notices,true)||'<p style="color:var(--soft)">No announcements yet.</p>'}</div></div>`; }
+function calendarTab(kind){
+  const up=D.upcoming||[], stu=id=>D.students.find(x=>x.id===id)||{id,name:id};
+  const groups={}; const dkey=ms=>new Date(ms).toLocaleDateString('en-CA',vz()); up.forEach(o=>{ const k=dkey(o.start); (groups[k]=groups[k]||[]).push(o); });
+  const today=dkey(Date.now()), tomorrow=dkey(Date.now()+86400000);
+  const html=Object.keys(groups).map(k=>{ const label=k===today?'Today':k===tomorrow?'Tomorrow':new Date(k+'T12:00:00Z').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
+    return `<div class="phase">${esc(label)}</div>`+groups[k].map(o=>{ const s=stu(o.sid); const soon=o.start-Date.now()<45*60000;
+      return `<div class="it"><span class="mono" style="width:90px;font-weight:600">${esc(fmtTime(o.start))}</span><div class="t"><b>${esc(s.name||s.id)} <span class="mono" style="font-size:12.5px;color:var(--soft);font-weight:500">${esc(s.id)}</span></b><span>${o.tz&&o.tz!==VIEWZ?'Class time '+esc(inZone(o.start,o.tz))+' · ':''}${esc(s.prog?pname(s.prog):'No program')} · ${o.minutes} min${o.note?' · '+esc(o.note):''}${kind==='admin'?' · '+esc(tname(s.teacher)):''}</span></div>${soon&&s.meet?classButtons(s,kind,s.live):`<span class="pill p-mute">${esc(rel(o.start))}</span>`}</div>`; }).join(''); }).join('');
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h1 style="font-size:32px">Calendar</h1><span style="color:var(--soft)">Classes in the next 2 weeks${D.tz?' (shown in '+esc(vzLabel())+')':''}. Add classes in each student's Edit panel.</span></div><div class="row">${zoneSwitch()}<button class="btn" data-tab="students" type="button">Students</button></div></div>
+  <div class="tbox list">${html||'<div class="it" style="color:var(--soft)">No classes scheduled. Open a student, then use Class timetable to add weekly or one-off classes.</div>'}</div>`;
 }
 function classLog(){ const h=D.classes||[]; const nm=id=>{ const s=D.students.find(x=>x.id===id); return s?s.name:id; };
   return `<h1 style="font-size:32px;margin-bottom:12px">Class log</h1><div class="tbox"><table><thead><tr><th>Student</th><th>Started</th><th>Started by</th><th>Minutes</th></tr></thead><tbody>${h.map(x=>`<tr><td>${esc(nm(x.sid))} <span class="mono" style="font-size:12.5px;color:var(--soft)">${esc(x.sid)}</span></td><td>${x.start?new Date(x.start).toLocaleString():''}</td><td>${esc(x.by)}</td><td class="mono">${x.mins===null?'<span class="pill p-live">live</span>':x.mins}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--soft)">No classes yet.</td></tr>'}</tbody></table></div>`; }
@@ -317,6 +485,14 @@ function bind(){
   app.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>{ if(!token){ view.page='home'; render(); } });
   app.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{ view.loginRole=b.dataset.role; render(); });
   const lf=$('#lform'); if(lf) lf.onsubmit=e=>{ e.preventDefault(); if(!busy) doLogin(); };
+  app.querySelectorAll('[data-ask]').forEach(b=>b.onclick=()=>askBox(b.dataset.ask,''));
+  app.querySelectorAll('[data-gosel]').forEach(b=>b.onclick=()=>{ view.tab='students'; sel=b.dataset.gosel; render(); });
+  app.querySelectorAll('[data-ans]').forEach(b=>b.onclick=async()=>{ const inp=app.querySelector(`[data-ansin="${b.dataset.ans}"]`); const j=await api('answerDoubt',{doubt:b.dataset.ans,answer:inp?inp.value.trim()||'Discussed in class':'Discussed in class'}); if(j.ok){ toast('Marked answered.'); refresh(); } else toast(j.msg); });
+  app.querySelectorAll('[data-refst]').forEach(s=>s.onchange=async()=>{ const j=await api('setReferral',{id:s.dataset.refst,status:s.value}); if(j.ok){ toast('Status saved.'); refresh(); } else toast(j.msg); });
+  app.querySelectorAll('[data-refnote]').forEach(i=>i.onchange=async()=>{ const j=await api('setReferral',{id:i.dataset.refnote,notes:i.value}); toast(j.ok?'Note saved.':j.msg); });
+  app.querySelectorAll('[data-delnotice]').forEach(b=>b.onclick=async()=>{ const j=await api('deleteNotice',{notice:b.dataset.delnotice}); if(j.ok){ toast('Deleted.'); refresh(); } else toast(j.msg); });
+  const nf=$('#nform'); if(nf) nf.onsubmit=async e=>{ e.preventDefault(); const j=await api('postNotice',{message:$('#nmsg').value,audience:$('#naud').value,expires:$('#nexp').value}); if(j.ok){ toast('Posted.'); refresh(); } else toast(j.msg); };
+  app.querySelectorAll('[data-viewzone]').forEach(sel=>sel.onchange=()=>{ VIEWZ=sel.value; LS.set('sopaan-viewzone',VIEWZ); render(); });
   on('[data-signout]',()=>signOut());
   on('[data-reload]',()=>{ D=null; render(); refresh(); });
   app.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openSheet(b.dataset.open));
@@ -327,11 +503,17 @@ function bind(){
   const s=sel&&D&&(D.students||[]).find(x=>x.id===sel);
   const done=async(j,ok)=>{ if(j.ok){ if(ok) toast(ok); await refresh(); } else toast(j.msg); };
   if(s){
-    on('[data-act=save]',async()=>{ const b={sid:s.id,name:$('#ename').value,prog:$('#eprog').value,meet:$('#emeet').value.trim(),wb:$('#ewb').value.trim()}; const et=$('#etch'); if(et) b.teacher=et.value; done(await api('saveStudent',b),'Saved.'); });
+    on('[data-act=save]',async()=>{ const b={sid:s.id,name:$('#ename').value,prog:$('#eprog').value,meet:$('#emeet').value.trim(),wb:$('#ewb').value.trim(),email:$('#cemail').value.trim(),parentName:$('#cpname').value.trim(),parentEmail:$('#cpemail').value.trim(),parentPhone:$('#cpphone').value.trim()}; const et=$('#etch'); if(et) b.teacher=et.value; done(await api('saveStudent',b),'Saved.'); });
     on('[data-act=pin]',async()=>{ const j=await api('resetPin',{sid:s.id}); done(j,j.ok?'New PIN for '+s.id+': '+j.pin:''); });
     on('[data-act=pause]',async()=>done(await api('saveStudent',{sid:s.id,status:s.status==='Active'?'Paused':'Active'})));
     on('[data-act=del]',()=>confirmBox('Delete '+s.id+'?','This removes the student\'s login. Their past attempts stay in the sheet.','Delete',async()=>{ sel=null; done(await api('deleteStudent',{sid:s.id}),'Deleted.'); }));
     app.querySelectorAll('[data-rmdev]').forEach(b=>b.onclick=async()=>done(await api('removeDevice',{sid:s.id,device:b.dataset.rmdev}),'Device removed.'));
+    app.querySelectorAll('input[name=stype]').forEach(r=>r.onchange=()=>{ const once=$('input[name=stype]:checked').value==='Once'; $('#sdays').style.display=once?'none':''; $('#srange').style.display=once?'none':''; $('#sdatebox').style.display=once?'':'none'; });
+    on('[data-act=addslot]',async()=>{ LS.set('sopaan-lastzone',$('#stz').value); const type=$('input[name=stype]:checked').value; const days=[...app.querySelectorAll('#sdays input:checked')].map(c=>c.value);
+      done(await api('addSlot',{sid:s.id,type,days,date:$('#sdate').value,time:$('#stime').value,tz:$('#stz').value,minutes:$('#smin').value,from:$('#sfrom').value,until:$('#suntil').value,note:$('#snote').value}),'Added to the timetable.'); });
+    app.querySelectorAll('[data-rmslot]').forEach(b=>b.onclick=async()=>done(await api('removeSlot',{sid:s.id,slot:b.dataset.rmslot}),'Removed.'));
+    on('[data-act=addhw]',async()=>{ const items=[...$('#hwitem').selectedOptions].map(o=>o.value); if(!items.length){ toast('Pick one or more sheets.'); return; } done(await api('addHomework',{sid:s.id,items,due:$('#hwdue').value}),'Homework set.'); });
+    app.querySelectorAll('[data-rmhw]').forEach(b=>b.onclick=async()=>done(await api('removeHomework',{sid:s.id,hw:b.dataset.rmhw}),'Removed.'));
     app.querySelectorAll('[data-reatt]').forEach(b=>b.onclick=async()=>done(await api('resetAttempt',{sid:s.id,item:b.dataset.reatt}),'Re-attempt allowed.'));
   }
   app.querySelectorAll('[data-pick]').forEach(c=>c.onchange=()=>{ c.checked?enrol.ids.add(c.dataset.pick):enrol.ids.delete(c.dataset.pick); render(); });
@@ -352,9 +534,10 @@ function bind(){
 }
 
 /* ================= START ================= */
+if('serviceWorker' in navigator && location.protocol==='https:'){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 render();
-(async()=>{ const j=await api('catalog'); if(j.ok){ catalog=j.programs; if(view.page==='home') render(); } })();
-if(token){ refresh().then(startPolling); }
+if(!REF) (async()=>{ const j=await api('catalog'); if(j.ok){ catalog=j.programs; if(view.page==='home') render(); } })();
+if(token&&!REF){ refresh().then(startPolling); }
 </script>
 </body>
 </html>
