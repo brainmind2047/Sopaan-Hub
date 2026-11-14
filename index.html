@@ -127,7 +127,7 @@ td{padding:12px 14px;border-bottom:1px solid #EFE8D6;vertical-align:middle}
 /* ====== Paste your Apps Script web app link here (Deploy › Manage deployments › Web app URL, ending in /exec) ====== */
 const API = 'https://script.google.com/macros/s/AKfycbzI7fqI3IJpvMWwmSl2NsjHbw93A9x9nL_Wd-MAPXlBHGv0dmbsA2XQoAZWjqweC4Gh/exec';
 /* ================================================================================================================== */
-const GROUPS=['SAT','Calculus','MYP','Other'];
+const GROUPS=['CBSE','SAT','Calculus','MYP','Other'];
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LS={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 let DEV=LS.get('sopaan-device'); if(!DEV){ DEV='d-'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); LS.set('sopaan-device',DEV); }
@@ -196,13 +196,36 @@ const SCI=[
  +`<svg class="deco" style="left:62%;top:22%;width:200px" viewBox="0 0 200 60"><path d="M0 30 Q 25 0 50 30 T 100 30 T 150 30 T 200 30"/></svg>`
  +`<svg class="deco" style="left:22%;top:62%;width:90px" viewBox="0 0 100 120"><line x1="10" y1="5" x2="90" y2="5"/><line x1="50" y1="5" x2="74" y2="90"/><circle cx="76" cy="98" r="10"/><path d="M50 40 A 35 35 0 0 1 64 37" /></svg>`;
 
+/* Front page: programs shown by family (display only; the Programs tab groups are unchanged). */
+const FAMILIES=[
+ ['cbse','CBSE','Classes 6 to 12: Foundation, Advanced, Bridge and Class 10 levels'],
+ ['dsat','Digital SAT','Learning plan and three levels of full tests'],
+ ['apcalc','AP Calculus & Pre-calculus','AP Precalculus, AP Calculus AB and BC, Honors'],
+ ['apphy','AP Physics','AP Physics 1'],
+ ['igcse','IGCSE','Cambridge and Edexcel IGCSE Mathematics'],
+ ['ib','IB · MYP & Diploma','MYP Mathematics 1–3 and IB Maths AA / AI'],
+ ['alevel','A Level','Cambridge and Edexcel A Level'],
+ ['uscc','US Common Core','Algebra 1, Geometry, Algebra 2 and Grade 8'],
+ ['other','Other programs','College calculus, Ontario, Oxford MAT and extra practice']];
+function famOf(p){ const id=p.id||'', n=(p.name||'')+' '+(p.board||'');
+  if(p.group==='CBSE'||/^CBSE|^CALC-CBSE/.test(id)) return 'cbse';
+  if(p.group==='SAT'||/^SAT/.test(id)) return 'dsat';
+  if(/^CALC-(APPRE|APAB|APBC|PRE)$/.test(id)) return 'apcalc';
+  if(/physics/i.test(n)||id==='APPHY') return 'apphy';
+  if(/IGCSE/i.test(n)||id==='IG') return 'igcse';
+  if(p.group==='MYP'||/^MYP|^CALC-IB/.test(id)||/\bIB\b/.test(n)) return 'ib';
+  if(/A Level|Pure Year/i.test(n)) return 'alevel';
+  if(/^(ALG1|ALG2|GEOM|USCC)$/.test(id)||/Common Core/i.test(n)||/(^|\s)US ·/.test(p.board||'')) return 'uscc';
+  return 'other'; }
+function cbseClass(p){ const n=p.name; if(/Bridge/.test(n)) return 85; const m=n.match(/Class (\d+|XII|XI)\b/); const c=!m?99:m[1]==='XI'?11:m[1]==='XII'?12:+m[1]; return c*10+(/Bridge/.test(n)?8.5:0)+(/Chapter sheets/.test(n)?0.5:0); }
+function chipName(p){ return p.name.replace(/^Calculus · /,'').replace(/^CBSE · /,'').replace(/^US Common Core · /,''); }
 function homeView(){
   const r=view.loginRole;
   const form = r==='student'? `<label class="l" for="sid">Login ID</label><input class="f" id="sid" autocomplete="username" placeholder="e.g. S0001"><label class="l" for="spin">4-digit PIN</label><input class="f mono" id="spin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="••••" style="letter-spacing:.4em;font-size:20px">`
    : `<label class="l" for="em">Email</label><input class="f" id="em" type="email" autocomplete="username"><label class="l" for="pw">Password</label><input class="f" id="pw" type="password" autocomplete="current-password">`;
   const ps=(catalog||[]);
-  const chips= ps.length? GROUPS.map(g=>{ const list=ps.filter(p=>p.group===g); if(!list.length) return ''; const label={SAT:'Digital SAT',Calculus:'Pre-calculus & Calculus',MYP:'IB Middle Years (MYP)',Other:'IGCSE, A Level, US & more'}[g];
-    return `<div class="pgrp"><h3>${label}<span class="mono">${list.length}</span></h3><div class="chips">${list.map(p=>`<span class="chip">${esc(p.name.replace('Calculus · ',''))}</span>`).join('')}</div></div>`; }).join('') : loading();
+  const chips= ps.length? FAMILIES.map(([k,label,sub])=>{ const list=ps.filter(p=>famOf(p)===k); if(!list.length) return ''; if(k==='cbse') list.sort((x,y)=>cbseClass(x)-cbseClass(y)); if(k==='ib') list.sort((x,y)=>(/^MYP/.test(y.id)-/^MYP/.test(x.id)));
+    return `<div class="pgrp"><h3>${label}<span class="mono">${list.length}</span></h3><p style="margin:-6px 0 12px;font-size:14px;color:var(--soft)">${sub}</p><div class="chips">${list.map(p=>`<span class="chip">${esc(chipName(p))}</span>`).join('')}</div></div>`; }).join('') : loading();
   return `<section class="lhero"><div class="sci" aria-hidden="true">${SCI}</div><div class="heroin" style="position:relative">
   <div style="flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px">
    <span class="crest" style="width:64px;height:64px;font-size:32px;border-radius:16px">S</span>
@@ -214,8 +237,8 @@ function homeView(){
   <form class="signin" id="lform"><div class="rtabs" role="tablist">${['student','teacher','admin'].map(x=>`<button type="button" role="tab" aria-selected="${x===r}" class="rtab ${x===r?'on':''}" data-role="${x}">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div>
    <h2 style="font-size:24px;margin-top:10px">${r==='student'?'Student sign in':r==='teacher'?'Teacher sign in':'Admin sign in'}</h2>
    ${form}<button class="btn" type="submit" style="width:100%;margin-top:16px;padding:14px" ${busy?'disabled':''}>${busy?'Signing in…':'Sign in'}</button><div id="lerr"></div>
-   <div class="note" style="margin-top:14px"><span>${r==='student'?'Your login opens only the program your teacher enrolled you in, on up to 3 devices. Forgot your PIN? Ask your teacher.':r==='teacher'?'Teacher accounts are created by the academy admin.':'Master login for the academy.'}</span></div></form></div></section>
-  <section class="wrap" aria-labelledby="pwo"><div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:16px"><div><span style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Programs we offer</span><h2 id="pwo" style="font-size:34px;margin-top:4px">${ps.length?ps.length+' programs':'Our programs'}</h2></div><span style="color:var(--soft);font-size:15px">Each student is enrolled in one program by their teacher.</span></div><div class="pgrid">${chips}</div></section>`;
+   <div class="note" style="margin-top:14px"><span>${r==='student'?'Your login opens only the programs your teacher enrolled you in, on up to 3 devices. Forgot your PIN? Ask your teacher.':r==='teacher'?'Teacher accounts are created by the academy admin.':'Master login for the academy.'}</span></div></form></div></section>
+  <section class="wrap" aria-labelledby="pwo"><div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:16px"><div><span style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Programs we offer</span><h2 id="pwo" style="font-size:34px;margin-top:4px">${ps.length?ps.length+' programs':'Our programs'}</h2></div><span style="color:var(--soft);font-size:15px">Your teacher enrols you in the programs you need.</span></div><div class="pgrid">${chips}</div></section>`;
 }
 async function doLogin(){
   const r=view.loginRole, $=q=>document.querySelector(q); let body;
