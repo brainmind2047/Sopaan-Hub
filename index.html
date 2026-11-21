@@ -101,6 +101,65 @@ td{padding:12px 14px;border-bottom:1px solid #EFE8D6;vertical-align:middle}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-size:14px;padding:6px 11px;border-radius:8px;background:var(--paper2);color:#3A342A}
 @media (max-width:640px){.heroin h1.bma{font-size:50px}.sopn{font-size:32px}}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.dtile{position:relative;overflow:hidden;text-align:left;background:#fff;border:1px solid var(--rule);border-radius:20px;padding:28px 26px 22px;display:flex;flex-direction:column;gap:8px;color:var(--ink);transition:transform .18s,box-shadow .18s,border-color .18s}
+.dtile::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--ac)}
+.dtile::after{content:"";position:absolute;right:-50px;top:-50px;width:180px;height:180px;border-radius:50%;background:var(--ac);opacity:.06;transition:opacity .18s,transform .3s}
+.dtile:hover,.dtile:focus-visible{transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(22,38,74,.35);border-color:var(--ac);outline:none}
+.dtile:hover::after,.dtile:focus-visible::after{opacity:.13;transform:scale(1.15)}
+.dic{width:56px;height:56px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ac) 13%,#fff);flex:none}
+.dic svg{width:30px;height:30px;fill:none;stroke:var(--ac);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dtt{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:30px;color:var(--navy);margin-top:6px}
+.dts{font-size:14.5px;color:var(--soft);line-height:1.4;flex:1}
+.dtm{display:flex;align-items:center;gap:4px;font-size:13.5px;color:var(--soft);border-top:1px solid var(--rule);padding-top:12px;margin-top:6px}
+.dtm b{color:var(--ac);font-weight:700}.dtm svg{width:18px;height:18px;margin-left:auto;fill:none;stroke:var(--ac);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.dtile:hover .dtm svg{transform:translateX(4px)}
+.dtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.dtags span{font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:99px;background:color-mix(in srgb,var(--ac) 10%,#fff);color:color-mix(in srgb,var(--ac) 80%,#000)}
+.dgo{margin-left:auto;display:inline-flex;align-items:center;gap:2px;font-weight:700;color:var(--ac)}.dgo svg{margin-left:0}
+.subj button{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:8px 14px;font-weight:700;font-size:15px;color:#F4EFDF;transition:background .15s,border-color .15s}
+.subj button:hover,.subj button:focus-visible{background:rgba(224,194,127,.18);border-color:#E0C27F;outline:none}
+.dhint{margin:0;font-size:14px;color:var(--soft)}
+.dbody>*{flex-shrink:0}
+.dbd{width:100%;text-align:left;background:#fff;border:1px solid var(--rule);border-left:5px solid var(--ac);border-radius:14px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:14px 16px 14px 18px;color:var(--ink);transition:transform .15s,box-shadow .15s}
+.dbd:hover,.dbd:focus-visible{transform:translateX(3px);box-shadow:0 8px 20px -12px rgba(22,38,74,.35);outline:none;background:color-mix(in srgb,var(--ac) 5%,#fff)}
+.dbn{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:19px;color:var(--navy)}
+.dbs{grid-column:1;font-size:13.5px;color:var(--soft)}
+.dbc{grid-column:1;font-size:12.5px;font-weight:700;color:var(--ac)}
+.dchev{grid-column:2;grid-row:1/4;align-self:center;width:22px;height:22px;fill:none;stroke:var(--ac);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.dbd:hover .dchev{transform:translateX(3px)}
+.dback{align-self:flex-start;background:#fff;border:1.5px solid var(--rule);border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px;color:var(--navy)}
+.dback:hover,.dback:focus-visible{border-color:var(--navy2);outline:none}
+.dbhead{border-left:5px solid var(--ac);padding:4px 0 4px 14px}
+.dbt{font-family:Fraunces,Georgia,serif;font-size:26px;color:var(--navy);margin:0}
+.dbhead p{margin:4px 0 4px;font-size:14px;color:var(--soft)}
+.dbin{display:flex;flex-direction:column;gap:16px}
+.dbody.slidein{animation:dslin .24s cubic-bezier(.2,.8,.2,1)}.dbody.slideback{animation:dslback .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes dslin{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes dslback{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.dbody.slidein,.dbody.slideback{animation:none}}
+.dbd .dgrp h4,.dbd .dlist li{--x:0}
+.pdrawer{position:fixed;inset:0;z-index:60}.pdrawer[hidden]{display:none}
+.dshade{position:absolute;inset:0;background:rgba(22,38,74,.45);opacity:0;transition:opacity .25s}
+.dpanel{position:absolute;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--paper);box-shadow:-20px 0 50px -20px rgba(0,0,0,.4);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+.pdrawer.open .dshade{opacity:1}.pdrawer.open .dpanel{transform:none}
+.dhead{display:flex;gap:14px;align-items:flex-start;padding:22px 22px 20px;background:var(--navy);border-bottom:5px solid var(--ac)}
+.dhead .dic{background:rgba(255,255,255,.1)}.dhead .dic svg{stroke:#E0C27F}
+.dhead .dk{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldlt);font-weight:700}
+.dhead h3{color:#F4EFDF;font-size:28px;margin-top:2px}.dhead p{margin:4px 0 0;color:#CFD7EA;font-size:14.5px}
+.dx{background:rgba(255,255,255,.1);border:none;color:#F4EFDF;width:38px;height:38px;border-radius:10px;font-size:24px;line-height:1;flex:none}
+.dx:hover{background:rgba(255,255,255,.2)}
+.dbody{flex:1;overflow-y:auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:20px}
+.dgrp h4{font-family:'Source Sans 3',sans-serif;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ac);font-weight:700;margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.dgrp h4 .mono{font-size:11.5px;background:color-mix(in srgb,var(--ac) 12%,#fff);padding:1px 7px;border-radius:99px}
+.dlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.dlist li{background:#fff;border:1px solid var(--rule);border-left:4px solid var(--ac);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.dpn{font-weight:700;font-size:16px;color:var(--navy)}.dpm{font-size:13.5px;color:var(--soft)}
+.dmore{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--rule);padding-top:16px;font-size:14px;color:var(--soft)}
+.dmb{border:1.5px solid var(--ac);color:var(--ac);background:#fff;border-radius:99px;padding:6px 13px;font-weight:700;font-size:13.5px}
+.dmb:hover{background:var(--ac);color:#fff}
+@media (max-width:640px){.dgrid{grid-template-columns:1fr;gap:12px}.dtile{padding:20px 18px 16px}.dtt{font-size:24px}.dic{width:46px;height:46px}}
+@media (prefers-reduced-motion:reduce){.dtile,.dpanel,.dshade{transition:none}}
 </style>
 <style>
 .loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px 20px;color:var(--soft);font-size:16px}
@@ -196,49 +255,99 @@ const SCI=[
  +`<svg class="deco" style="left:62%;top:22%;width:200px" viewBox="0 0 200 60"><path d="M0 30 Q 25 0 50 30 T 100 30 T 150 30 T 200 30"/></svg>`
  +`<svg class="deco" style="left:22%;top:62%;width:90px" viewBox="0 0 100 120"><line x1="10" y1="5" x2="90" y2="5"/><line x1="50" y1="5" x2="74" y2="90"/><circle cx="76" cy="98" r="10"/><path d="M50 40 A 35 35 0 0 1 64 37" /></svg>`;
 
-/* Front page: programs shown by family (display only; the Programs tab groups are unchanged). */
-const FAMILIES=[
- ['cbse','CBSE','Classes 6 to 12: Foundation, Advanced, Bridge and Class 10 levels'],
- ['dsat','Digital SAT','Learning plan and three levels of full tests'],
- ['apcalc','AP Calculus & Pre-calculus','AP Precalculus, AP Calculus AB and BC, Honors'],
- ['apphy','AP Physics','AP Physics 1'],
- ['igcse','IGCSE','Cambridge and Edexcel IGCSE Mathematics'],
- ['ib','IB · MYP & Diploma','MYP Mathematics 1–3 and IB Maths AA / AI'],
- ['alevel','A Level','Cambridge and Edexcel A Level'],
- ['uscc','US Common Core','Algebra 1, Geometry, Algebra 2 and Grade 8'],
- ['other','Other programs','College calculus, Ontario, Oxford MAT and extra practice']];
-function famOf(p){ const id=p.id||'', n=(p.name||'')+' '+(p.board||'');
+/* Front page: programs shown in drawers (display only; the Programs tab groups are unchanged). */
+const IC={
+ sat:'<path d="M9 4h6M8 4H6a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-2"/><path d="M8.5 11l2 2 4-4M8.5 17h7"/>',
+ cbse:'<path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/>',
+ uscc:'<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>',
+ ib:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/>',
+ myp:'<path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><path d="M12 7.5l3.9 2.25v4.5L12 16.5l-3.9-2.25v-4.5z"/>',
+ math:'<path d="M4 7h7M7.5 3.5v7M14 5l6 6M20 5l-6 6M4 17h7M14 15.5h6M14 18.5h6"/>',
+ phy:'<circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>',
+ chem:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/>'};
+const DRAWERS=[
+ ['math','Mathematics','SAT, CBSE, US Common Core, IB, MYP, AP Calculus, IGCSE, A Level and more','#A87A22'],
+ ['phy','Physics','AP Physics 1, AP Physics 2 and AP Physics C: E&M','#17707C'],
+ ['chem','Chemistry','AP Chemistry, all nine units','#8C3A68']];
+const BOARDS=[
+ ['sat','SAT','Digital SAT learning plan and full-length tests','#B5532E'],
+ ['cbse','CBSE','Classes 6 to 12, from Foundation to Board level','#1F3B6B'],
+ ['uscc','US Common Core','Grade 8, Algebra 1, Geometry and Algebra 2','#2D6496'],
+ ['ib','IB Diploma','Maths AA and AI, at SL and HL','#2E6B47'],
+ ['myp','IB MYP','MYP Mathematics 1, 2 and 3','#4B3A7A'],
+ ['ap','AP Calculus & Pre-calculus','AP Precalculus, AP Calculus AB and BC, Honors','#A87A22'],
+ ['igcse','IGCSE','Cambridge and Edexcel IGCSE Mathematics','#8A5A2B'],
+ ['alevel','A Level','Cambridge and Edexcel A Level','#5B6B2E'],
+ ['more','College, Ontario & more','College calculus, Ontario, Oxford MAT and extra practice','#655D4C']];
+function subjOf(p){ const id=p.id||'', n=(p.name||'')+' '+(p.board||'');
+  if(/physics/i.test(n)||/^APPHY/.test(id)) return 'phy';
+  if(/chemistry/i.test(n)||/^APCHEM/.test(id)) return 'chem';
+  return 'math'; }
+function boardOf(p){ const id=p.id||'', b=p.board||'', n=(p.name||'')+' '+b;
+  if(p.group==='SAT'||/^SAT/.test(id)) return 'sat';
   if(p.group==='CBSE'||/^CBSE|^CALC-CBSE/.test(id)) return 'cbse';
-  if(p.group==='SAT'||/^SAT/.test(id)) return 'dsat';
-  if(/^CALC-(APPRE|APAB|APBC|PRE)$/.test(id)) return 'apcalc';
-  if(/physics/i.test(n)||id==='APPHY') return 'apphy';
+  if(p.group==='MYP'||/^MYP/.test(id)) return 'myp';
+  if(/^CALC-IB/.test(id)||/\bIB\b/.test(n)) return 'ib';
+  if(/^(ALG1|ALG2|GEOM|USCC)$/.test(id)||/Common Core/i.test(n)||/(^|\s)US ·/.test(b)) return 'uscc';
   if(/IGCSE/i.test(n)||id==='IG') return 'igcse';
-  if(p.group==='MYP'||/^MYP|^CALC-IB/.test(id)||/\bIB\b/.test(n)) return 'ib';
-  if(/A Level|Pure Year/i.test(n)) return 'alevel';
-  if(/^(ALG1|ALG2|GEOM|USCC)$/.test(id)||/Common Core/i.test(n)||/(^|\s)US ·/.test(p.board||'')) return 'uscc';
-  return 'other'; }
-function cbseClass(p){ const n=p.name; if(/Bridge/.test(n)) return 85; const m=n.match(/Class (\d+|XII|XI)\b/); const c=!m?99:m[1]==='XI'?11:m[1]==='XII'?12:+m[1]; return c*10+(/Bridge/.test(n)?8.5:0)+(/Chapter sheets/.test(n)?0.5:0); }
+  if(/A Level|IAL|Pure Year/i.test(n)) return 'alevel';
+  if(/^AP|Honors/.test(b)||/^CALC-(APPRE|APAB|APBC|PRE)$/.test(id)) return 'ap';
+  return 'more'; }
+function subOf(p,k){ const n=p.name;
+  if(k==='cbse'){ const c=cbseClass(p); return c<90?'Classes 6 to 8':c<100?'Class 9':c<110?'Class 10':'Classes 11 and 12'; }
+  if(k==='sat') return /Plan/i.test(n)?'Learning plan':'Full-length tests';
+  if(k==='ib') return /\bAA\b/.test(n)?'Analysis & Approaches':'Applications & Interpretation';
+  return ''; }
+const SUBORDER=['Learning plan','Full-length tests','Classes 6 to 8','Class 9','Class 10','Classes 11 and 12','Analysis & Approaches','Applications & Interpretation',''];
+const ico=(k,c)=>`<span class="dic" style="--ac:${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg></span>`;
+function progsIn(k){ const l=(catalog||[]).filter(p=>subjOf(p)===k); l.sort((x,y)=>cbseClass(x)-cbseClass(y)); return l; }
+const sheetsOf=l=>l.reduce((t,p)=>t+(+p.count||0),0);
+function tiles(){ return DRAWERS.map(([k,label,sub,c])=>{ const l=progsIn(k); if(!l.length) return ''; const sh=sheetsOf(l);
+  const tags= k==='math'? BOARDS.filter(([bk])=>l.some(p=>boardOf(p)===bk)).map(([,bl])=>`<span>${bl.replace(' & Pre-calculus','').replace('College, Ontario & more','College & more')}</span>`).join('') : l.map(p=>`<span>${esc(chipName(p))}</span>`).join('');
+  return `<button type="button" class="dtile" style="--ac:${c}" data-dopen="${k}" aria-haspopup="dialog">${ico(k,c)}<span class="dtt">${label}</span><span class="dts">${sub}</span><span class="dtags">${tags}</span><span class="dtm"><b>${l.length}</b> program${l.length>1?'s':''}${sh?` · <b>${sh}</b> sheets`:''}<span class="dgo">Open<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span></span></button>`; }).join(''); }
+const card=p=>`<li><span class="dpn">${esc(chipName(p))}</span><span class="dpm">${[/^(CBSE|SAT|IB MYP)$/.test(p.board||'')?'':esc(p.board||''),p.count?`${p.count} sheet${p.count>1?'s':''}`:''].filter(Boolean).join(' · ')}</span></li>`;
+function grouped(l,k){ const g={}; l.forEach(p=>{ const s=subOf(p,k); (g[s]=g[s]||[]).push(p); });
+  return SUBORDER.filter(s=>g[s]).map(s=>`<div class="dgrp">${s?`<h4>${s}<span class="mono">${g[s].length}</span></h4>`:''}<ul class="dlist">${g[s].map(card).join('')}</ul></div>`).join(''); }
+function drawerBody(k){ const l=progsIn(k);
+  if(k!=='math') return grouped(l,k);
+  return `<p class="dhint">Choose a board to see its programs.</p>`+BOARDS.map(([bk,bl,bs,c])=>{ const bp=l.filter(p=>boardOf(p)===bk); if(!bp.length) return ''; const sh=sheetsOf(bp);
+    return `<button type="button" class="dbd" style="--ac:${c}" data-board="${bk}"><span class="dbn">${bl}</span><span class="dbs">${bs}</span><span class="dbc">${bp.length} program${bp.length>1?'s':''}${sh?` · ${sh} sheets`:''}</span><svg class="dchev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`; }).join(''); }
+function boardView(bk){ const d=BOARDS.find(x=>x[0]===bk), bp=progsIn('math').filter(p=>boardOf(p)===bk), sh=sheetsOf(bp);
+  return `<button type="button" class="dback" data-back>← Mathematics</button><div class="dbhead" style="--ac:${d[3]}"><h4 class="dbt">${d[1]}</h4><p>${d[2]}</p><span class="dbc">${bp.length} program${bp.length>1?'s':''}${sh?` · ${sh} sheets`:''}</span></div><div class="dbin" style="--ac:${d[3]}">${grouped(bp,bk)}</div>`; }
+function wireBody(el){ const b=el.querySelector('.dbody');
+  b.querySelectorAll('[data-board]').forEach(x=>x.onclick=()=>{ b.innerHTML=boardView(x.dataset.board); b.scrollTop=0; b.classList.remove('slidein','slideback'); void b.offsetWidth; b.classList.add('slidein'); wireBody(el); b.querySelector('[data-back]').focus(); });
+  b.querySelectorAll('[data-back]').forEach(x=>x.onclick=()=>{ const from=b.dataset.from; b.innerHTML=drawerBody('math'); b.scrollTop=0; b.classList.remove('slidein','slideback'); void b.offsetWidth; b.classList.add('slideback'); wireBody(el); }); }
+let dLast=null;
+function openDrawer(k,from){ const d=DRAWERS.find(x=>x[0]===k), el=document.getElementById('pdrawer'); if(!d||!el) return; if(from&&!from.closest('#pdrawer')) dLast=from;
+  el.style.setProperty('--ac',d[3]); el.querySelector('.dhead').innerHTML=`${ico(k,d[3])}<div style="flex:1;min-width:0"><span class="dk">Programs we offer</span><h3 id="dtitle">${d[1]}</h3><p>${d[2]}</p></div><button type="button" class="dx" data-dclose aria-label="Close">×</button>`;
+  const b=el.querySelector('.dbody'); b.innerHTML=drawerBody(k); b.scrollTop=0; wireBody(el);
+  el.hidden=false; requestAnimationFrame(()=>el.classList.add('open')); document.body.style.overflow='hidden';
+  el.querySelectorAll('[data-dclose]').forEach(x=>x.onclick=closeDrawer);
+  el.querySelector('.dx').focus(); }
+function closeDrawer(){ const el=document.getElementById('pdrawer'); if(!el||el.hidden) return; el.classList.remove('open'); document.body.style.overflow=''; setTimeout(()=>{ el.hidden=true; },260); if(dLast&&document.body.contains(dLast)) dLast.focus(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
+function cbseClass(p){ const n=p.name; if(/Bridge/.test(n)) return 85; const m=n.match(/Class (\d+|XII|XI)\b/); const c=!m?99:m[1]==='XI'?11:m[1]==='XII'?12:+m[1]; return c*10+(/Bridge/.test(n)?8.5:0)+(/Chapter sheets/.test(n)?0.5:0)+(/Calculus/.test(n)?0.2:0); }
 function chipName(p){ return p.name.replace(/^Calculus · /,'').replace(/^CBSE · /,'').replace(/^US Common Core · /,''); }
 function homeView(){
   const r=view.loginRole;
   const form = r==='student'? `<label class="l" for="sid">Login ID</label><input class="f" id="sid" autocomplete="username" placeholder="e.g. S0001"><label class="l" for="spin">4-digit PIN</label><input class="f mono" id="spin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="••••" style="letter-spacing:.4em;font-size:20px">`
    : `<label class="l" for="em">Email</label><input class="f" id="em" type="email" autocomplete="username"><label class="l" for="pw">Password</label><input class="f" id="pw" type="password" autocomplete="current-password">`;
   const ps=(catalog||[]);
-  const chips= ps.length? FAMILIES.map(([k,label,sub])=>{ const list=ps.filter(p=>famOf(p)===k); if(!list.length) return ''; if(k==='cbse') list.sort((x,y)=>cbseClass(x)-cbseClass(y)); if(k==='ib') list.sort((x,y)=>(/^MYP/.test(y.id)-/^MYP/.test(x.id)));
-    return `<div class="pgrp"><h3>${label}<span class="mono">${list.length}</span></h3><p style="margin:-6px 0 12px;font-size:14px;color:var(--soft)">${sub}</p><div class="chips">${list.map(p=>`<span class="chip">${esc(chipName(p))}</span>`).join('')}</div></div>`; }).join('') : loading();
+  const chips= ps.length? tiles() : loading();
   return `<section class="lhero"><div class="sci" aria-hidden="true">${SCI}</div><div class="heroin" style="position:relative">
   <div style="flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px">
    <span class="crest" style="width:64px;height:64px;font-size:32px;border-radius:16px">S</span>
    <h1 class="bma">Brain &amp; Mind<br>Academy</h1>
    <div class="sop"><span class="sopn">Sopaan</span><span class="sopt">सोपान · learning, one step at a time</span></div>
-   <div class="subj"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7M7.5 3.5v7M14 5l6 6M20 5l-6 6M4 17h7M14 15.5h6M14 18.5h6"/></svg>Mathematics</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>Physics</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Chemistry</span></div>
+   <div class="subj"><button type="button" data-dopen="math" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7M7.5 3.5v7M14 5l6 6M20 5l-6 6M4 17h7M14 15.5h6M14 18.5h6"/></svg>Mathematics</button><button type="button" data-dopen="phy" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>Physics</button><button type="button" data-dopen="chem" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Chemistry</button></div>
    <p style="margin:0">Interactive theory, practice and timed tests, with live classes on Google Meet. Sign in with the login your teacher or academy gave you.</p>
   </div>
   <form class="signin" id="lform"><div class="rtabs" role="tablist">${['student','teacher','admin'].map(x=>`<button type="button" role="tab" aria-selected="${x===r}" class="rtab ${x===r?'on':''}" data-role="${x}">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div>
    <h2 style="font-size:24px;margin-top:10px">${r==='student'?'Student sign in':r==='teacher'?'Teacher sign in':'Admin sign in'}</h2>
    ${form}<button class="btn" type="submit" style="width:100%;margin-top:16px;padding:14px" ${busy?'disabled':''}>${busy?'Signing in…':'Sign in'}</button><div id="lerr"></div>
    <div class="note" style="margin-top:14px"><span>${r==='student'?'Your login opens only the programs your teacher enrolled you in, on up to 3 devices. Forgot your PIN? Ask your teacher.':r==='teacher'?'Teacher accounts are created by the academy admin.':'Master login for the academy.'}</span></div></form></div></section>
-  <section class="wrap" aria-labelledby="pwo"><div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:16px"><div><span style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Programs we offer</span><h2 id="pwo" style="font-size:34px;margin-top:4px">${ps.length?ps.length+' programs':'Our programs'}</h2></div><span style="color:var(--soft);font-size:15px">Your teacher enrols you in the programs you need.</span></div><div class="pgrid">${chips}</div></section>`;
+  <section class="wrap" aria-labelledby="pwo"><div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:16px"><div><span style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldtx);font-weight:700">Programs we offer</span><h2 id="pwo" style="font-size:34px;margin-top:4px">${ps.length?ps.length+' programs':'Our programs'}</h2></div><span style="color:var(--soft);font-size:15px">Tap a subject to see its programs. Your teacher enrols you in the ones you need.</span></div><div class="dgrid">${chips}</div></section>
+  <div id="pdrawer" class="pdrawer" hidden role="dialog" aria-modal="true" aria-labelledby="dtitle"><div class="dshade" data-dclose></div><aside class="dpanel"><div class="dhead"></div><div class="dbody"></div></aside></div>`;
 }
 async function doLogin(){
   const r=view.loginRole, $=q=>document.querySelector(q); let body;
@@ -573,6 +682,7 @@ function bind(){
   const app=document.getElementById('app'), $=q=>app.querySelector(q), on=(q,f)=>{ const e=$(q); if(e) e.onclick=f; };
   app.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>{ if(!token){ view.page='home'; render(); } });
   app.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{ view.loginRole=b.dataset.role; render(); });
+  app.querySelectorAll('.dgrid [data-dopen], .subj [data-dopen]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.dopen,b));
   const lf=$('#lform'); if(lf) lf.onsubmit=e=>{ e.preventDefault(); if(!busy) doLogin(); };
   app.querySelectorAll('[data-ask]').forEach(b=>b.onclick=()=>askBox(b.dataset.ask,''));
   app.querySelectorAll('[data-gosel]').forEach(b=>b.onclick=()=>{ view.tab='students'; sel=b.dataset.gosel; render(); });
