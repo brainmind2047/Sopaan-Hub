@@ -710,7 +710,11 @@ function timetableCard(){
 }
 /* Links between sheet files (chapter page → topic, ⬇ Easier / ⬆ Harder) open the matching Hub sheet instead of a broken page. */
 const LINKJS='<script>(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href")||"";if(/^(https?:|mailto:|tel:|#|javascript:)/i.test(h))return;var m=h.match(/([\\w.-]+)\\.html(?:[?#].*)?$/i);if(!m)return;e.preventDefault();e.stopPropagation();parent.postMessage({sopaanGo:m[1]},"*");},true);})();<\/script>';
-function linkable(h){ h=String(h||''); return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,LINKJS+'</body>'):h+LINKJS; }
+function lockFor(){ const u=(D&&(D.student||D.me))||null; return u?{login:String(u.id||'student'),name:String(u.name||u.id||'Student')}:{login:'VISITOR',name:'Visitor'}; }
+/* Sheets made for the older lock pages wait for window.__SOPAAN_LOCK__; the Hub already knows who is signed in, so it supplies it. */
+function lockable(h){ if(h.indexOf('__SOPAAN_LOCK__')<0) return h; const L=lockFor(), js='<script>window.__SOPAAN_LOCK__='+JSON.stringify({login:L.login,name:L.name,token:'',api:'about:blank',home:''}).replace(/</g,'\\u003c')+';<\/script>';
+  return /<head(\s[^>]*)?>/i.test(h)?h.replace(/<head(\s[^>]*)?>/i,m=>m+js):js+h; }
+function linkable(h){ h=lockable(String(h||'')); return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,LINKJS+'</body>'):h+LINKJS; }
 function fileItem(f){ const h=String(f).match(/^hcv-(\d+)-(\d+)-/i); if(h) return 'PHYCOP-'+String(+h[1]).padStart(2,'0')+'-'+h[2]; if(/^hcv-demo/i.test(f)) return 'PHYCOP-DEMO'; const m=String(f).match(/uscc-g(\d)-ch(\d+)(?:-lo(\d+))?/i); if(m) return 'USCC'+m[1]+'-CH'+String(+m[2]).padStart(2,'0')+(m[3]?'-LO'+m[3]:''); return String(f).toUpperCase(); }
 window.addEventListener('message',e=>{ const fr=document.getElementById('sframe'); if(!fr||e.source!==fr.contentWindow||!e.data||!e.data.sopaanGo) return;
   const id=fileItem(e.data.sopaanGo);
