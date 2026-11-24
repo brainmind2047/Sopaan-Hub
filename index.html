@@ -410,8 +410,8 @@ const IC={
  chem:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/>'};
 const DRAWERS=[
  ['math','Mathematics','SAT, CBSE, US Common Core, IB, MYP, AP Calculus, IGCSE, A Level and more','#A87A22'],
- ['phy','Physics','AP Physics 1, AP Physics 2 and AP Physics C: E&M','#17707C'],
- ['chem','Chemistry','AP Chemistry, all nine units','#8C3A68']];
+ ['phy','Physics','AP Physics 1, 2 and C, and Concepts of Physics (H.C. Verma) for JEE & NEET','#17707C'],
+ ['chem','Chemistry','AP, IB Diploma, IGCSE and Ontario Grade 11–12','#8C3A68']];
 const BOARDS=[
  ['sat','SAT','Digital SAT learning plan and full-length tests','#B5532E'],
  ['cbse','CBSE','Classes 6 to 12, from Foundation to Board level','#1F3B6B'],
@@ -715,7 +715,7 @@ function lockFor(){ const u=(D&&(D.student||D.me))||null; return u?{login:String
 function lockable(h){ if(h.indexOf('__SOPAAN_LOCK__')<0) return h; const L=lockFor(), js='<script>window.__SOPAAN_LOCK__='+JSON.stringify({login:L.login,name:L.name,token:'',api:'about:blank',home:''}).replace(/</g,'\\u003c')+';<\/script>';
   return /<head(\s[^>]*)?>/i.test(h)?h.replace(/<head(\s[^>]*)?>/i,m=>m+js):js+h; }
 function linkable(h){ h=lockable(String(h||'')); return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,LINKJS+'</body>'):h+LINKJS; }
-function fileItem(f){ const h=String(f).match(/^hcv-(\d+)-(\d+)-/i); if(h) return 'PHYCOP-'+String(+h[1]).padStart(2,'0')+'-'+h[2]; if(/^hcv-demo/i.test(f)) return 'PHYCOP-DEMO'; const m=String(f).match(/uscc-g(\d)-ch(\d+)(?:-lo(\d+))?/i); if(m) return 'USCC'+m[1]+'-CH'+String(+m[2]).padStart(2,'0')+(m[3]?'-LO'+m[3]:''); return String(f).toUpperCase(); }
+function fileItem(f){ const ch=String(f).match(/^(n11|n12|igh|igo|ibox|ibcam)-([a-z]?\d+)-(\d+[a-z]?)-/i); if(ch) return ('CH'+ch[1]+'-'+ch[2]+'-'+ch[3]).toUpperCase(); const h=String(f).match(/^hcv-(\d+)-(\d+)-/i); if(h) return 'PHYCOP-'+String(+h[1]).padStart(2,'0')+'-'+h[2]; if(/^hcv-demo/i.test(f)) return 'PHYCOP-DEMO'; const m=String(f).match(/uscc-g(\d)-ch(\d+)(?:-lo(\d+))?/i); if(m) return 'USCC'+m[1]+'-CH'+String(+m[2]).padStart(2,'0')+(m[3]?'-LO'+m[3]:''); return String(f).toUpperCase(); }
 window.addEventListener('message',e=>{ const fr=document.getElementById('sframe'); if(!fr||e.source!==fr.contentWindow||!e.data||!e.data.sopaanGo) return;
   const id=fileItem(e.data.sopaanGo);
   if(/^index$/i.test(e.data.sopaanGo)){ toast('To open another sheet, use Save and close, then pick it from your list.'); return; }
