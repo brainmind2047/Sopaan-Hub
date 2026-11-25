@@ -364,21 +364,97 @@ a.lvlink:hover,a.lvlink:focus{background:rgba(201,162,39,.08)}
 .tile2.p{background:var(--gold);color:var(--navy,#16264A)}.tile2.n{background:var(--navy-2,#1F3B6B)}
 .tile2.z{opacity:.35}.tile2.z::after{content:'';position:absolute;left:3px;right:3px;top:50%;height:2px;background:var(--danger,#b00);transform:rotate(-20deg)}
 
+
+/* ===== Sopaan v2 layout ===== */
+.hdr{position:sticky;top:0;z-index:40;padding:calc(8px + env(safe-area-inset-top)) 0 0;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.hdr .wrap{position:relative}
+.hbar{display:flex;align-items:center;gap:12px;min-height:50px;padding-bottom:8px}
+.hbar .crest{width:38px;height:38px;font-size:16px}
+.htx{min-width:0;flex:1}
+.htx .eyebrow{margin:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htx .title{font-size:20px;margin:1px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htx .subtitle{display:none}
+.hbar .clock{margin-left:0;flex:none}
+.mbtn{flex:none;border:0;border-radius:999px;min-height:40px;padding:0 14px;background:rgba(255,255,255,.14);color:#F4EFDF;font-weight:700;font-size:15px}
+.mbtn span{font-size:13.5px}
+.hprog{height:4px;background:rgba(255,255,255,.14);border-radius:2px}
+.hprog i{display:block;height:100%;background:var(--gold);transition:width .4s}
+.menu{position:absolute;right:16px;top:58px;z-index:45;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);min-width:250px;padding:6px}
+.menu .mwho{padding:10px 12px 12px;font-size:13.5px;color:var(--ink-soft);border-bottom:1px solid var(--rule);margin-bottom:4px;line-height:1.45}
+.menu .mwho b{color:var(--ink)}
+.menu button,.menu a{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;background:none;text-align:left;border-radius:9px;font-size:15px;font-weight:600;color:var(--ink);text-decoration:none}
+.menu button:hover,.menu a:hover{background:var(--paper-2)}
+.tabs{position:static}
+.stg{display:flex;gap:8px;max-width:900px;margin:0 auto;padding:10px 16px 2px}
+.sg{flex:1;min-width:0;border:1.5px solid var(--rule);background:var(--card);border-radius:12px;padding:7px 10px;text-align:left;min-height:50px;line-height:1.25}
+.sg b{display:block;font-size:14px;color:var(--ink)}
+.sg span{display:block;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg.on{border-color:var(--navy-2);background:var(--gold-soft);box-shadow:inset 0 -3px 0 var(--gold)}
+.sg.lock{opacity:.55}
+.sg.pass b::after{content:" ✓";color:var(--success)}
+.tabrow{padding:0 8px}
+.tab{font-size:15px}
+.fabs{display:none !important}
+.navin .nb.ic{width:46px;padding:0;font-size:18px}
+.navin .nb.lnk{border:0;background:none;color:var(--ink-soft);padding:0 6px;text-decoration:underline;text-underline-offset:3px}
+.navin .nb.qn{font-family:"IBM Plex Mono",monospace;padding:0 10px}
+.navin .nb.big{min-width:118px;font-size:16px}
+.navin .wl{display:none}
+.toast{bottom:auto;top:calc(76px + env(safe-area-inset-top))}
+.opt.sel:not(.ok):not(.bad) .otag{display:none}
+[id^="sec"],#notes,#examples,#checks{scroll-margin-top:84px}
+aside.side{display:none}
+.mtoc h4,.side h4{margin:0 0 8px;font-family:Fraunces,Georgia,serif;font-size:17px}
+.toc{display:flex;flex-direction:column}
+.toc button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:8px;font-size:15px;color:var(--accent-text);font-weight:600}
+.toc button:hover{background:var(--paper-2)}
+.toc .t3{padding-left:24px;font-weight:400;color:var(--ink)}
+.side .card{padding:14px 16px}
+.side .chips{grid-template-columns:repeat(5,1fr);margin:6px 0 10px}
+.side .tools{display:flex;flex-direction:column;gap:8px}
+.side .tools .btn{width:100%;justify-content:flex-start}
+@media (max-width:480px){
+  .mbtn span{display:none}
+  .hbar .clock{font-size:12px;padding:3px 8px}
+  .htx .title{font-size:18px}
+  .sg{padding:6px 8px}
+  .sg b{font-size:13px}
+  .sg span{font-size:11.5px}
+  .navin{gap:6px}
+  .navin .nb.ic{width:42px}
+  .navin .nb.big{min-width:96px}
+}
+@media (min-width:700px){
+  .htx .subtitle{display:block;font-size:13px;margin-top:1px}
+  .navin .wl{display:inline}
+  .navin .nb.ic.pv{width:auto;padding:0 14px;font-size:15px}
+}
+@media (min-width:700px) and (max-width:1099px){
+  .opts{display:grid;grid-template-columns:1fr 1fr}
+}
+@media (min-width:1100px){
+  .hdr .wrap,.stg,.tabrow,.tabdesc,.navin{max-width:1200px}
+  main .wrap.v2g{max-width:1200px;display:grid;grid-template-columns:minmax(0,1fr) 290px;column-gap:28px;align-items:start}
+  main .wrap.v2g>*{grid-column:1;min-width:0}
+  main .wrap.v2g>aside.side{grid-column:2;grid-row:1 / span 80;position:sticky;top:88px;display:block}
+  .mtoc{display:none}
+  .navin .tool{display:none}
+  .v2g .sprog .mini{display:none}
+}
 </style>
 </head>
 <body>
 <header class="hdr"><div class="wrap">
-  <div class="brand">
-    <a class="crest" href="#" data-act="tab" data-id="theory" aria-label="Brain and Mind Academy — back to the start of this sheet">BM</a>
-    <div><div class="bma">Brain &amp; Mind Academy</div><div class="sop">Sopaan <span>Practice Series</span></div></div>
+  <div class="hbar">
+    <a class="crest" href="#" data-act="tab" data-id="theory" title="Brain &amp; Mind Academy · Sopaan" aria-label="Brain and Mind Academy — back to the start of this sheet">BM</a>
+    <div class="htx"><div class="eyebrow" id="eyebrow"></div><h1 class="title" id="title"></h1><div class="subtitle" id="subtitle"></div></div>
     <span class="clock" id="clock" aria-label="Session time"></span>
+    <button class="mbtn" id="mbtn" data-act="menu" aria-label="Menu" aria-expanded="false" hidden>☰<span> Menu</span></button>
   </div>
-  <div class="eyebrow" id="eyebrow"></div>
-  <h1 class="title" id="title"></h1>
-  <div class="subtitle" id="subtitle"></div>
+  <div class="menu" id="menu" hidden></div>
   <div id="hdrDyn"></div>
 </div></header>
-<nav class="tabs" id="tabs" hidden aria-label="Sheets"><div class="tabrow" id="tabrow"></div><div class="tabdesc" id="tabdesc"></div></nav>
+<nav class="tabs" id="tabs" hidden aria-label="Sheets"><div id="stgrow"></div><div class="tabrow" id="tabrow"></div><div class="tabdesc" id="tabdesc"></div></nav>
 <main id="main"></main>
 <footer><div id="foot"></div></footer>
 <div class="fabs" id="fabs" hidden>
@@ -2013,7 +2089,7 @@ function renderSignIn() {
     "<label class='field'><span>4-digit PIN</span><input id='inPin' inputmode='numeric' maxlength='4' type='password' autocomplete='off'></label>" +
     "<div class='err' id='inErr'></div><button class='btn gold' data-act='signin'>Sign in</button>" +
     "<p class='note'>New name and roll number? A profile is created. Returning? Use the same PIN.</p></div></div>";
-  $("#hdrDyn").innerHTML = ""; $("#tabs").hidden = true; $("#nav").hidden = true; $("#fabs").hidden = true;
+  $("#hdrDyn").innerHTML = ""; $("#mbtn").hidden = true; $("#menu").hidden = true; $("#tabs").hidden = true; $("#nav").hidden = true; $("#fabs").hidden = true;
 }
 function doSignIn() {
   var name = $("#inName").value.trim().replace(/\s+/g, " "), roll = $("#inRoll").value.trim(), pin = $("#inPin").value.trim(), err = $("#inErr");
@@ -2037,21 +2113,26 @@ function sessionStart() { try { var v = sessionStorage.getItem("sopaan-session-s
 function fmt(ms) { var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (x < 10 ? "0" : "") + x; }
 
 /* ---------- header / tabs ---------- */
+function isDark() { var c = document.documentElement.getAttribute("data-theme"); return c ? c === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches); }
 function renderHeader() {
   var pct = loProgress();
-  $("#hdrDyn").innerHTML = "<div class='cprog'><div class='track'><i style='width:" + pct + "%'></i></div><span>" + pct + "% complete</span></div>" +
-    "<div class='hrow'><span class='who'>Signed in as <b>" + esc(USER.name) + "</b> · Roll " + esc(USER.roll) + "</span>" +
-    (LEVELS[0].learn.length ? "<button class='pill gold' data-act='levelpill'>Stage " + curLevel() + " · " + LEVELS[curLevel() - 1].name + "</button>" : "") +
-    (SHEET.hub ? "<a class='pill ghost' style='display:inline-flex;align-items:center;text-decoration:none' href='" + esc(SHEET.hub) + "'>Chapter hub</a>" : "") +
-    "<button class='pill ghost' data-act='record'>My record</button>" +
-    "<button class='pill ghost' data-act='printdlg'>🖨 Print / PDF</button>" +
-    "<button class='pill ghost' data-act='theme' aria-label='Switch light or dark theme'>🌓</button>" +
-    "<button class='pill ghost' data-act='signout'>Sign out</button></div>";
+  $("#hdrDyn").innerHTML = "<div class='hprog' title='" + pct + "% of this topic done'><i style='width:" + pct + "%'></i></div>";
+  $("#menu").innerHTML = "<div class='mwho'>Signed in as <b>" + esc(USER.name) + "</b> · Roll " + esc(USER.roll) + "<br><b>" + pct + "%</b> of this topic done</div>" +
+    (SHEET.hub ? "<a href='" + esc(SHEET.hub) + "'>📚 Chapter hub</a>" : "") +
+    "<button data-act='record'>📝 My record</button>" +
+    "<button data-act='printdlg'>🖨 Print / PDF</button>" +
+    "<button data-act='theme'>" + (isDark() ? "☀️ Light mode" : "🌙 Dark mode") + "</button>" +
+    "<button data-act='signout'>↩ Sign out</button>";
+  $("#mbtn").hidden = false;
 }
 function renderTabs() {
-  var h = "", lastLevel = 0;
+  var h = "", cl = tabById(CUR).level || curLevel(), hasStages = LEVELS.length && LEVELS[0].learn && LEVELS[0].learn.length;
+  $("#stgrow").innerHTML = hasStages ? "<div class='stg' aria-label='Stages'>" + LEVELS.map(function (L) {
+    var open = levelOpen(L.n), pass = levelPassed(L.n);
+    return "<button class='sg" + (L.n === cl ? " on" : "") + (open ? "" : " lock") + (pass ? " pass" : "") + "' data-act='stage' data-n='" + L.n + "'" + (L.n === cl ? " aria-current='true'" : "") + "><b>" + (open ? "" : "🔒 ") + "Stage " + L.n + "</b><span>" + esc(L.name) + "</span></button>";
+  }).join("") + "</div>" : "";
   TABS.forEach(function (t) {
-    if (t.level && t.level !== lastLevel) { lastLevel = t.level; h += "<span class='tab lvl'>" + esc(lvLabel(LEVELS[t.level - 1])) + "</span>"; }
+    if (t.level && t.level !== cl) return;
     var open = tabOpen(t), extra = "";
     if (t.items) {
       if (isQuiz(t)) { var ts = testState(t); extra = ts.passed ? "✓ " + ts.best + "/" + t.items.length : t.items.length; }
@@ -3260,6 +3341,9 @@ function renderTheory() {
     "<button class='hcard' data-act='scrollto' data-to='notes'><b>📖 Theory notes</b><span>Read the ideas, then try the interactive tool.</span></button>" +
     "<button class='hcard' data-act='tab' data-id='l" + curLevel() + "-learn'><b>🎯 Practice by stage</b><span>Continue at Stage " + curLevel() + " · " + LEVELS[curLevel() - 1].name + ".</span></button>" +
     "<button class='hcard' data-act='record'><b>📝 Learning assessment</b><span>See your stage tests and progress.</span></button></div>";
+  var toc = "<div class='toc'><button data-act='scrollto' data-to='notes'>📖 " + esc(SHEET.lo.title) + "</button>" + Th.sections.map(function (s, i) { return "<button class='t3' data-act='scrollto' data-to='sec" + i + "'>" + esc(s.h) + "</button>"; }).join("") +
+    "<button data-act='scrollto' data-to='examples'>✍️ Worked examples</button><button data-act='scrollto' data-to='checks'>✅ Check yourself</button></div>";
+  h += "<div class='card mtoc'><h4>On this page</h4>" + toc + "</div>";
   h += lvlLinksHTML();
   h += "<div class='card'><h2>Your path through this topic</h2><div class='path'>" + LEVELS.map(function (L) {
     var ts = P.tests["l" + L.n + "-test"], pass = levelPassed(L.n), open = levelOpen(L.n);
@@ -3268,14 +3352,14 @@ function renderTheory() {
   }).join("") + "</div></div>";
   if (LEVELS.some(function (L) { return L.brief; })) h += "<div class='card'><h2>Stage briefs</h2><p class='note'>A one-screen lesson for each stage: key idea, worked example, common mistake and a quick check.</p><div class='stat'>" + LEVELS.map(function (L) { return L.brief ? "<button class='btn line' data-act='openbrief' data-id='l" + L.n + "-learn'>📘 Stage " + L.n + " · " + esc(L.name) + "</button>" : ""; }).join("") + "</div></div>";
   h += "<div class='card' id='notes'><h2>" + esc(SHEET.lo.title) + "</h2><p class='note'>Standard " + esc(SHEET.lo.std) + "</p><p>" + Th.intro + "</p>";
-  Th.sections.forEach(function (s, i) { h += "<h3>" + esc(s.h) + "</h3>" + s.html + (s.fig ? figHTML(s.fig) : ""); if (i === (Th.toolAfter || 0)) h += toolHTML(); });
-  h += "</div><div class='card'><h2>Worked examples</h2>";
+  Th.sections.forEach(function (s, i) { h += "<h3 id='sec" + i + "'>" + esc(s.h) + "</h3>" + s.html + (s.fig ? figHTML(s.fig) : ""); if (i === (Th.toolAfter || 0)) h += toolHTML(); });
+  h += "</div><div class='card' id='examples'><h2>Worked examples</h2>";
   Th.examples.forEach(function (ex, i) {
     var n = EXSTEP[i] || 0;
     h += "<div class='ex'><b>Example " + (i + 1) + ".</b> " + esc(ex.q) + "<ol>" + ex.steps.slice(0, n).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol>" +
       (n < ex.steps.length ? "<button class='mini' data-act='exstep' data-i='" + i + "'>" + (n ? "Next step" : "Show the first step") + "</button>" : "<span class='note'>✓ All steps shown</span>") + "</div>";
   });
-  h += "</div><div class='card'><h2>Check yourself</h2><p class='note'>Tap an answer. You get instant feedback.</p>";
+  h += "</div><div class='card' id='checks'><h2>Check yourself</h2><p class='note'>Tap an answer. You get instant feedback.</p>";
   Th.checks.forEach(function (c, i) {
     var picked = P.checks[i];
     h += "<div class='chk'><b>" + (i + 1) + ".</b> " + esc(c.q) + "<div class='opts'>" + c.o.map(function (o, j) {
@@ -3283,8 +3367,9 @@ function renderTheory() {
       return "<button class='opt" + cls + "' data-act='check' data-i='" + i + "' data-j='" + j + "'><span class='lt'>(" + LETTERS[j] + ")</span> " + esc(o) + "</button>";
     }).join("") + "</div>" + (picked != null ? "<div class='fb " + (picked === c.a ? "ok'>Correct! " : "rev'>Not quite. ") + esc(c.why) + "</div>" : "") + "</div>";
   });
-  h += "<button class='btn gold' data-act='tab' data-id='l" + curLevel() + "-learn'>Start Stage " + curLevel() + " Learn →</button></div></div>";
-  $("#main").innerHTML = h;
+  h += "<button class='btn gold' data-act='tab' data-id='l" + curLevel() + "-learn'>Start Stage " + curLevel() + " Learn →</button></div>";
+  h += "<aside class='side'><div class='card'><h4>On this page</h4>" + toc + "</div><div class='card'><h4>Practise</h4><div class='tools'><button class='btn gold' data-act='tab' data-id='l" + curLevel() + "-learn'>Stage " + curLevel() + " · " + esc(LEVELS[curLevel() - 1].name) + " →</button><button class='btn line' data-act='record'>📝 My record</button></div></div></aside></div>";
+  $("#main").innerHTML = h.replace("<div class='wrap theory'>", "<div class='wrap theory v2g'>");
   $("#nav").hidden = true; $("#fabs").hidden = false; $("#fabQ").hidden = true;
 }
 
@@ -3386,11 +3471,11 @@ function renderQuestions() {
     h += "<div class='hint'>Test mode — pick an option or fill in what you can. Answers and solutions appear when you finish. Time: <b class='mono' id='ttime'>" + fmt(Date.now() - ts.start) + "</b> / " + t.minutes + ":00</div>";
   } else {
     var A = accuracy(t), ch = chapterAcc();
-    h += "<div class='meter'><span>Sheet accuracy <b>" + (A.att ? A.pct + "%" : "–") + "</b><span class='g'><i style='width:" + A.pct + "%'></i></span></span><span><b>" + A.first + "</b> right first try</span><span>LO accuracy <b>" + (ch === null ? "–" : ch + "%") + "</b></span></div>";
+    h += "<div class='meter'><span><b>" + (A.first + A.second) + "</b> correct so far</span>" + (A.att ? "<span>Accuracy <b>" + A.pct + "%</b><span class='g'><i style='width:" + A.pct + "%'></i></span></span>" : "") + "</div>";
     if (t.kind === "practice" && p === 0 && !items(t)[0].st) h += "<div class='hint'>Practice — solve each question on your own. Two tries, then the answer and solution are shown.</div>";
   }
-  h += cardHTML(t, p);
-  $("#main").innerHTML = h + "</div>";
+  h += cardHTML(t, p) + sideQ(t, p);
+  $("#main").innerHTML = h.replace("<div class='wrap'>", "<div class='wrap v2g'>") + "</div>";
   if (quiz) timerI = setInterval(function () { var el = $("#ttime"); if (el) el.textContent = fmt(Date.now() - ts.start); else clearInterval(timerI); }, 1000);
   renderNav(t, p);
   $("#fabs").hidden = false; $("#fabQ").hidden = false;
@@ -3404,12 +3489,27 @@ function chapterAcc() {
 }
 function answeredQuiz(s) { if (s.sel != null) return true; var v = s.vals || {}; for (var k in v) if (v[k] && String(v[k]).trim()) return true; return false; }
 function renderNav(t, p) {
-  var N = t.items.length, quiz = isQuiz(t), s = items(t)[p], done = isDone(s);
-  var h = "<div class='navin'><button class='nb' data-act='prev'" + (p === 0 ? " disabled" : "") + ">← Previous</button>" +
-    "<button class='nb' data-act='skip'>Skip</button><span class='sp'></span>";
-  if (!quiz) h += "<button class='nb gold' data-act='check'" + (done && s.st !== "skipped" ? " disabled" : "") + ">Check</button>";
-  h += "<button class='nb pri' data-act='next'>" + (p === N - 1 ? "Finish" : "Next →") + "</button></div>";
-  $("#nav").innerHTML = h; $("#nav").hidden = false;
+  var N = t.items.length, quiz = isQuiz(t), s = items(t)[p], done = isDone(s), need = !quiz && (!done || s.st === "skipped");
+  var h = "<div class='navin'><button class='nb ic pv' data-act='prev' aria-label='Previous question'" + (p === 0 ? " disabled" : "") + ">←<span class='wl'>&nbsp;Previous</span></button>" +
+    "<button class='nb lnk' data-act='skip'>Skip</button><span class='sp'></span>" +
+    "<button class='nb ic tool' data-act='calc' aria-label='Calculator'>🧮</button>" +
+    "<button class='nb ic tool' data-act='pad' aria-label='Scratchpad'>✏️</button>" +
+    "<button class='nb tool qn' data-act='palette' aria-label='All questions'>" + (p + 1) + "/" + N + "</button>";
+  h += need ? "<button class='nb gold big' data-act='check'>Check</button>" : "<button class='nb pri big' data-act='next'>" + (p === N - 1 ? "Finish" : "Next →") + "</button>";
+  $("#nav").innerHTML = h + "</div>"; $("#nav").hidden = false;
+}
+function sideQ(t, p) {
+  var quiz = isQuiz(t), h = "<aside class='side'><div class='card'><h4>Questions</h4><div class='chips'>";
+  items(t).forEach(function (s, i) {
+    var cls = i === p ? " cur" : "";
+    if (quiz) cls += answeredQuiz(s) ? " answered" : "";
+    else { if (s.st === "correct") cls += " correct"; else if (s.st === "revealed") cls += " revealed"; else if (s.st === "skipped") cls += " skipped"; }
+    h += "<button class='chip" + cls + "' data-act='chip' data-i='" + i + "' aria-label='Question " + (i + 1) + "'>" + (i + 1) + "</button>";
+  });
+  h += "</div><div class='legend'><span class='lc'>Current</span>" + (quiz ? "<span>Answered</span>" : "<span class='lk'>Correct</span><span class='lr'>Revealed</span><span class='ls'>Skipped</span>") + "</div></div>";
+  h += "<div class='card'><h4>Tools</h4><div class='tools'><button class='btn line' data-act='calc'>🧮 Calculator</button><button class='btn line' data-act='pad'>✏️ Scratchpad</button>" +
+    (t.kind === "learn" && LEVELS[t.level - 1].brief ? "<button class='btn line' data-act='openbrief' data-id='" + t.id + "'>📘 Stage brief</button>" : "") + "</div></div></aside>";
+  return h;
 }
 
 /* ---------- learn / practice checking ---------- */
@@ -3782,10 +3882,20 @@ function render() {
 /* ---------- events ---------- */
 document.addEventListener("click", function (e) {
   ac();
-  var b = e.target.closest("[data-act]"); if (!b) { if (e.target.id === "ov") closeDlg(); return; }
+  var b = e.target.closest("[data-act]"), mn = $("#menu");
+  if (mn && !mn.hidden && !(b && b.getAttribute("data-act") === "menu")) { mn.hidden = true; $("#mbtn").setAttribute("aria-expanded", "false"); }
+  if (!b) { if (e.target.id === "ov") closeDlg(); return; }
   var act = b.getAttribute("data-act"), t = tabById(CUR);
   switch (act) {
     case "signin": doSignIn(); break;
+    case "menu": { var m = $("#menu"); if (m.hidden) renderHeader(); m.hidden = !m.hidden; b.setAttribute("aria-expanded", String(!m.hidden)); break; }
+    case "stage": {
+      var sn = +b.getAttribute("data-n");
+      if (!levelOpen(sn)) { toast("Pass the Stage " + (sn - 1) + " test (8 out of 10) to unlock Stage " + sn + "."); break; }
+      var suf = CUR.indexOf("-") > 0 ? CUR.split("-")[1] : "learn", st = TABS.filter(function (x) { return x.id === "l" + sn + "-" + suf; })[0];
+      if (!st || !tabOpen(st)) st = TABS.filter(function (x) { return x.id === "l" + sn + "-learn"; })[0];
+      readQuiz(); CUR = st.id; save(); render(); window.scrollTo(0, 0); break;
+    }
     case "recent": $("#inName").value = b.getAttribute("data-name"); $("#inRoll").value = b.getAttribute("data-roll"); $("#inPin").focus(); break;
     case "signout": readQuiz(); USER = null; P = null; closeDlg(); clearInterval(timerI); render(); window.scrollTo(0, 0); break;
     case "tab": {
