@@ -941,7 +941,21 @@ function lockFor(){ const u=(D&&(D.student||D.me))||null; return u?{login:String
 /* Sheets made for the older lock pages wait for window.__SOPAAN_LOCK__; the Hub already knows who is signed in, so it supplies it. */
 function lockable(h){ if(h.indexOf('__SOPAAN_LOCK__')<0) return h; const L=lockFor(), js='<script>window.__SOPAAN_LOCK__='+JSON.stringify({login:L.login,name:L.name,token:'',api:'about:blank',home:''}).replace(/</g,'\\u003c')+';<\/script>';
   return /<head(\s[^>]*)?>/i.test(h)?h.replace(/<head(\s[^>]*)?>/i,m=>m+js):js+h; }
-function linkable(h){ h=lockable(String(h||'')); return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,LINKJS+'</body>'):h+LINKJS; }
+/* Sheets with their own on-device sign-in (name, roll no., PIN): the Hub already knows the student, so it signs them in there. */
+function signable(h){ if(h.indexOf('sopaan-students-v1')<0) return h; const L=lockFor(); if(!L||!L.login) return h; const name=String(L.name||L.login).replace(/\s+/g,' ').trim(), roll=String(L.login);
+  const js='<script>(function(){ var name='+JSON.stringify(name).replace(/</g,'\\u003c')+', roll='+JSON.stringify(roll)+', pin="2468", key=name.toLowerCase()+"#"+roll.toLowerCase();'+
+   ' function hA(p,s){ var h=2166136261, t=s+"|"+p; for(var i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h.toString(36); }'+
+   ' function hB(id,p){ var t="sopaan|"+id+"|"+p, h=5381; for(var i=0;i<t.length;i++){ h=((h<<5)+h+t.charCodeAt(i))>>>0; } return h.toString(36); }'+
+   ' try{ var a=JSON.parse(localStorage.getItem("sopaan-students-v1")||"null")||{}; a.students=a.students||{}; var o=a.students[key]||{name:name,roll:roll,created:Date.now()}; o.pin=hA(pin,key); a.students[key]=o;'+
+   ' var b=a[key]&&typeof a[key]==="object"?a[key]:{name:name,roll:roll,last:Date.now()}; b.pin=hB(key,pin); a[key]=b; localStorage.setItem("sopaan-students-v1",JSON.stringify(a)); }catch(e){}'+
+   ' function fill(f,v){ var e=document.getElementById(f); if(!e) return false; e.value=v; return true; }'+
+   ' var n=0; function go(){ n++; try{'+
+   '  if(document.getElementById("lgPin")&&fill("lgName",name)&&fill("lgRoll",roll)&&fill("lgPin",pin)){ var f=document.getElementById("loginForm"); if(f){ if(f.requestSubmit) f.requestSubmit(); else f.dispatchEvent(new Event("submit",{cancelable:true})); return; } }'+
+   '  if(document.getElementById("inPin")&&fill("inName",name)&&fill("inRoll",roll)&&fill("inPin",pin)){ var btn=document.querySelector("[data-act=signin]"); if(btn){ btn.click(); return; } }'+
+   ' }catch(e){} if(n<30) setTimeout(go,200); }'+
+   ' if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",function(){ setTimeout(go,50); }); else setTimeout(go,50); })();<\/script>';
+  return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,js+'</body>'):h+js; }
+function linkable(h){ h=signable(lockable(String(h||''))); return /<\/body>/i.test(h)?h.replace(/<\/body>(?![\s\S]*<\/body>)/i,LINKJS+'</body>'):h+LINKJS; }
 function fileItem(f){ const ch=String(f).match(/^(n11|n12|igh|igo|ibox|ibcam)-([a-z]?\d+)-(\d+[a-z]?)-/i); if(ch) return ('CH'+ch[1]+'-'+ch[2]+'-'+ch[3]).toUpperCase(); const h=String(f).match(/^hcv-(\d+)-(\d+)-/i); if(h) return 'PHYCOP-'+String(+h[1]).padStart(2,'0')+'-'+h[2]; if(/^hcv-demo/i.test(f)) return 'PHYCOP-DEMO'; const m=String(f).match(/uscc-g(\d)-ch(\d+)(?:-lo(\d+))?/i); if(m) return 'USCC'+m[1]+'-CH'+String(+m[2]).padStart(2,'0')+(m[3]?'-LO'+m[3]:''); return String(f).toUpperCase(); }
 window.addEventListener('message',e=>{ const fr=document.getElementById('sframe'); if(!fr||e.source!==fr.contentWindow||!e.data||!e.data.sopaanGo) return;
   const id=fileItem(e.data.sopaanGo);
