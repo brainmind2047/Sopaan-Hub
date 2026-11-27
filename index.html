@@ -355,6 +355,7 @@ td{padding:12px 14px;border-bottom:1px solid #EFE8D6;vertical-align:middle}
 @media (max-width:860px){.freein{grid-template-columns:1fr}}
 .renewc{display:flex;flex-wrap:wrap;gap:14px;align-items:center;border:2px solid #E0C27F;background:#FFFBEF}.fcode{font-size:20px;font-weight:700;letter-spacing:.08em;background:#F3EEE1;border:1px dashed #C9A24B;border-radius:10px;padding:6px 14px;color:var(--navy)}
 .ibars{display:flex;align-items:flex-end;gap:3px;height:120px;margin:12px 0 6px}.ibar{flex:1;background:var(--navy2,#24396A);border-radius:3px 3px 0 0;min-height:2px}
+.dself{display:inline-block;background:#E8EEF8;color:#1F3B6B;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:700;margin-right:2px}
 </style>
 <style>
 .loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px 20px;color:var(--soft);font-size:16px}
@@ -469,7 +470,7 @@ const DRAWERS=[
  ['phy','Physics','AP Physics 1, 2 and C, and Physics Mastery for JEE & NEET (Class 11–12)','#17707C'],
  ['chem','Chemistry','AP, IB Diploma, IGCSE and Ontario Grade 11–12','#8C3A68'],
  ['sci','Science','School science, board by board','#3F7A3A'],
- ['eng','English','Reading, writing and grammar, board by board','#3A5BA0']];
+ ['eng','English','Self-paced: US Common Core Grades 6–12 and AP English Language','#3A5BA0']];
 const BOARDS=[
  ['sat','SAT','Digital SAT learning plan and full-length tests','#B5532E'],
  ['cbse','CBSE','Classes 6 to 12, from Foundation to Board level','#1F3B6B'],
@@ -523,10 +524,11 @@ let CUR=(()=>{ try{ const c=localStorage.getItem('sopaan_cur'); if(c==='INR'||c=
 function setCur(c){ CUR=c; try{ localStorage.setItem('sopaan_cur',c); }catch(e){} }
 const money=(n,c)=>c==='USD'?'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0}):'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
 const priceOf=(p,c=CUR)=>/^included$/i.test(p.ptype||'')?0:(c==='USD'?p.usd:p.inr)||0;
+const selfOnly=p=>/self-?paced only/i.test((p&&p.ptype)||'');
 function priceHTML(p){ if(/^included$/i.test(p.ptype||'')) return `<span class="dprice">Self-paced · <b>Included with any Calculus program</b></span>`;
   const y=priceOf(p); if(!y) return '';
   if(/^one-?time$/i.test(p.ptype||'')) return `<span class="dprice">Self-paced · <b>${money(y,CUR)}</b> one-time</span>`;
-  return `<span class="dprice">Self-paced · <b>${money(y,CUR)}</b> a year <span class="dpx">· about ${money(Math.round(y/12),CUR)}/month · ${money(Math.round(y/52),CUR)}/week*</span></span>`; }
+  return `<span class="dprice">${selfOnly(p)?'<span class="dself">Self-paced only</span> ':'Self-paced · '}<b>${money(y,CUR)}</b> a year <span class="dpx">· about ${money(Math.round(y/12),CUR)}/month · ${money(Math.round(y/52),CUR)}/week*</span></span>`; }
 const canBuy=p=>!!priceOf(p)&&(CUR==='INR'?PAY.upi:PAY.card);
 const PAYNOTE='* Monthly and weekly amounts are shown only to compare. Each program is paid in full, once, for a full year of access.';
 function curSwitch(){ return `<div class="curs" role="group" aria-label="Show prices in"><button type="button" data-cur="INR" aria-pressed="${CUR==='INR'}" class="${CUR==='INR'?'on':''}">₹ India</button><button type="button" data-cur="USD" aria-pressed="${CUR==='USD'}" class="${CUR==='USD'?'on':''}">$ Outside India</button></div>`; }
@@ -621,6 +623,11 @@ function videoBlock(){ const v=ST('video link'); if(/^https:\/\/[^\s"'<>]+\.mp4(
 function freeSec(){ if(!ST('free sample paper')||token) return '';
   return `<section class="pband freeb" id="freepaper" aria-labelledby="fpt"><div class="wrap psec freein"><div class="freetx"><span class="kick">Free download</span><h2 id="fpt" class="ph2">A full CBSE Class 10 sample paper, free</h2><p>A complete board-pattern paper (80 marks, 3 hours) with its step-by-step marking scheme, sent to your email as PDFs. Attempt it on paper, then check yourself the way the board does.</p><ul class="freel"><li>Latest board pattern</li><li>Marking scheme with step marks</li><li>No payment, no sign-up</li></ul></div>
    <form class="card freef" id="fpf" novalidate><label class="l" for="fp_name">Your name</label><input class="f" id="fp_name" autocomplete="name" required><label class="l" for="fp_em">Email</label><input class="f" id="fp_em" type="email" autocomplete="email" required><label class="l" for="fp_ph">WhatsApp (optional)</label><input class="f" id="fp_ph" type="tel" autocomplete="tel" placeholder="+91 98765 43210"><input id="fp_web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true"><p class="buyerr" id="fperr" role="alert"></p><button class="btn gold" type="submit" style="width:100%;padding:13px">Email me the free paper</button><p class="buysm">We may send you a follow-up about Sopaan. See our <a href="policies/privacy.html" target="_blank" rel="noopener">privacy policy</a>.</p></form></div></section>`; }
+function planFit(){ const i=document.getElementById('eq_int'), pl=document.getElementById('eq_plan'); if(!i||!pl) return;
+  const p=(catalog||[]).find(x=>x.name===i.value||x.id===i.value), self=(!!p&&selfOnly(p))||/self-paced\)$/i.test(i.value||'');
+  [...pl.options].forEach(o=>{ const live=/demo class|live classes/i.test(o.text); o.hidden=self&&live; o.disabled=self&&live; });
+  if(self&&/demo class|live classes/i.test(pl.value)) pl.value='Self-paced course';
+  let n=document.getElementById('eq_selfnote'); if(self&&!n){ n=document.createElement('p'); n.id='eq_selfnote'; n.className='buysm'; n.textContent='This program is self-paced only (no live classes).'; pl.parentNode.appendChild(n); } else if(!self&&n) n.remove(); }
 async function sendFreePaper(){ const $=q=>document.getElementById(q), er=t=>{ $('fperr').textContent=t||''; }; er('');
   const b={name:$('fp_name').value.trim(),email:$('fp_em').value.trim(),phone:$('fp_ph').value.trim(),website:$('fp_web').value};
   if(b.name.length<2) return er('Please enter your name.'); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)) return er('Please enter a valid email.');
@@ -747,7 +754,7 @@ function planCard(k,tag,title,sub,list,cta,feat){ const fee=(SITE.fees||{})[k]; 
 function homeView(){
   const ps=(catalog||[]), sheets=ps.reduce((t,p)=>t+(+p.count||0),0);
   const boards=ps.length? BOARDS.filter(([k])=>ps.some(p=>subjOf(p)==='math'&&boardOf(p)===k)).map(x=>x[1].replace(' & Pre-calculus','').replace('College, Ontario & more','College')) .concat(ps.some(p=>/^AP/.test(p.board||'')&&subjOf(p)!=='math')?['AP Physics','AP Chemistry']:[]) : [];
-  const opts=ps.length? BOARDS.filter(([k])=>ps.some(p=>subjOf(p)==='math'&&boardOf(p)===k)).map(x=>'Maths · '+x[1]).concat(['Physics','Chemistry']) : ['Mathematics','Physics','Chemistry'];
+  const opts=ps.length? BOARDS.filter(([k])=>ps.some(p=>subjOf(p)==='math'&&boardOf(p)===k)).map(x=>'Maths · '+x[1]).concat(['Physics','Chemistry']).concat(ps.filter(p=>subjOf(p)==='eng').length?['English (self-paced)']:[]) : ['Mathematics','Physics','Chemistry'];
   const how=[['Learn the idea','Each chapter opens with clear theory and worked examples, written for your board.'],['Practise each objective','Practice is grouped by learning objective, with worked solutions, so you build one skill at a time.'],['Test yourself','Timed tests with one attempt each show what you can really do, without second chances.'],['See your report','Scores by chapter and objective show strengths and the exact next step. Parents get reports weekly, fortnightly or monthly.']];
   return siteNav()+`<section class="lhero phero"><div class="sci" aria-hidden="true">${SCI}</div><div class="heroin" style="position:relative">
   <div style="flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:18px">
@@ -796,7 +803,7 @@ function goHome(){ if(token) return; view.page='home'; if(location.hash) history
 window.addEventListener('popstate',()=>{ if(token||REF) return; const want=location.hash==='#login'?'login':'home'; if(view.page!==want){ view.page=want; render(); } });
 function bindFinder(){ const fb=document.getElementById('findbody'); if(!fb) return;
   fb.querySelectorAll('[data-find]').forEach(b=>b.onclick=()=>{ const k=b.dataset.find, v=b.dataset.v; if(k==='s'){ FIND={s:FIND.s===v?'':v,b:'',g:''}; } else if(k==='b'){ FIND.b=FIND.b===v?'':v; FIND.g=''; } else FIND.g=FIND.g===v?'':v; fb.innerHTML=finderBody(); bindFinder(); });
-  fb.querySelectorAll('[data-enqprog]').forEach(b=>b.onclick=()=>{ const sel=document.getElementById('eq_int'); if(sel){ let o=[...sel.options].find(x=>x.value===b.dataset.enqprog); if(!o){ o=new Option(b.dataset.enqprog,b.dataset.enqprog); sel.add(o,1); } sel.value=b.dataset.enqprog; } goSection('enquire'); setTimeout(()=>{ const f=document.getElementById('eq_name'); if(f) f.focus({preventScroll:true}); },400); }); }
+  fb.querySelectorAll('[data-enqprog]').forEach(b=>b.onclick=()=>{ setTimeout(planFit,0); const sel=document.getElementById('eq_int'); if(sel){ let o=[...sel.options].find(x=>x.value===b.dataset.enqprog); if(!o){ o=new Option(b.dataset.enqprog,b.dataset.enqprog); sel.add(o,1); } sel.value=b.dataset.enqprog; } goSection('enquire'); setTimeout(()=>{ const f=document.getElementById('eq_name'); if(f) f.focus({preventScroll:true}); },400); }); }
 function goSection(id){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
 async function sendEnquiry(){ const $=q=>document.getElementById(q), m=$('eqmsg'), b=document.querySelector('#enqf button[type=submit]');
   const body={name:$('eq_name').value,grade:$('eq_grade').value,phone:$('eq_phone').value,email:$('eq_email').value,plan:$('eq_plan').value,interest:$('eq_int').value,message:$('eq_msg').value,website:$('eq_web').value};
@@ -1238,6 +1245,7 @@ function bind(){
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>{ e.preventDefault(); goSection(b.dataset.go); });
   app.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{ const s=document.getElementById('eq_plan'); if(s) s.value=b.dataset.plan; goSection('enquire'); setTimeout(()=>{ const f=document.getElementById('eq_name'); if(f) f.focus({preventScroll:true}); },400); });
   const ef=$('#enqf'); if(ef) ef.onsubmit=e=>{ e.preventDefault(); sendEnquiry(); };
+  const ei=document.getElementById('eq_int'); if(ei){ ei.addEventListener('change',planFit); planFit(); }
   const fpf=document.getElementById('fpf'); if(fpf) fpf.onsubmit=e=>{ e.preventDefault(); sendFreePaper(); };
   bindFinder(); wireTeam();
   app.querySelectorAll('[data-hf]').forEach(b=>b.onclick=()=>{ const v=b.dataset.hf; app.querySelectorAll('[data-hf]').forEach(x=>{ x.classList.toggle('on',x===b); x.setAttribute('aria-pressed',x===b); }); app.querySelectorAll('.hrow[data-ht]').forEach(r=>{ r.hidden=!!v&&r.dataset.ht!==v; }); });
